@@ -1,4 +1,4 @@
-import { BaseComponent } from '../../src/system/BaseComponent';
+import { BaseCommand } from '../../src/system/cqrs/BaseCommand';
 import { Order } from './Order';
 import { UserGateway } from './UserGateway';
 import { OrderRepository } from './OrderRepository';
@@ -11,7 +11,7 @@ type Input = {
     amount: number;
 };
 
-export class TagOrder extends BaseComponent<Input, Order> {
+export class TagOrder extends BaseCommand<Input, Order> {
 
     constructor(
         private readonly userGateway: UserGateway,
@@ -33,11 +33,15 @@ export class TagOrder extends BaseComponent<Input, Order> {
         const userProfile = await this.userGateway.getUser(ctx, input.userId);
 
         // 3. Apply Logic (Pure)
+        // Policy execution remains pure (returns evolutions/mutated object)
         order = this.policy.execute(ctx, order, userProfile);
 
-        // 4. Save (Side Effect)
-        await this.orderRepo.save(ctx, order);
+        // 4. Save (Side Effect) - NOW REQUIRES COMMIT SCOPE
+        await this.commit(ctx, async (scope) => {
+            await this.orderRepo.saveIfChanged(scope, undefined, order);
+        });
 
         return order;
     }
 }
+

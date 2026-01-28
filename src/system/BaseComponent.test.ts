@@ -72,3 +72,52 @@ describe('BaseComponent', () => {
         );
     });
 });
+
+import { BaseCommand } from './cqrs/BaseCommand';
+import { BaseQuery } from './cqrs/BaseQuery';
+import { CommitScope } from './persistence/CommitScope';
+
+class TestCommand extends BaseCommand<void, void> {
+    protected async _run(ctx: RitaCtx, input: void): Promise<void> {
+        await this.commit(ctx, async (scope) => {
+            // Write something
+        });
+    }
+}
+
+class TestQuery extends BaseQuery<void, void> {
+    protected async executeQueryParams(ctx: RitaCtx, input: void): Promise<void> {
+        return;
+    }
+}
+
+describe('CQRS Enforcement', () => {
+    let mockCtx: RitaCtx;
+
+    beforeEach(() => {
+        mockCtx = { traceId: 'test-trace' };
+    });
+
+    it('Command should throw if ctx.commit is missing', async () => {
+        const cmd = new TestCommand();
+        // Execute without commit capability
+        await expect(cmd.execute(mockCtx, undefined)).rejects.toThrow('Cmd: Missing Commit Capability');
+    });
+
+    it('Command should succeed if ctx.commit is present', async () => {
+        const cmd = new TestCommand();
+        const commitSpy = jest.fn(async (fn) => fn({ _isCommitScope: true }));
+        const ctxWithCommit = { ...mockCtx, commit: commitSpy };
+
+        await cmd.execute(ctxWithCommit, undefined);
+        expect(commitSpy).toHaveBeenCalled();
+    });
+
+    it('Query should execute without commit capability', async () => {
+        const query = new TestQuery();
+        await expect(query.execute(mockCtx, undefined)).resolves.not.toThrow();
+    });
+});
+
+
+

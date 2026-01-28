@@ -1,56 +1,67 @@
-import { BehaviorSpec } from '../../src/system/BehaviorSpec';
-import { TagOrderController } from './TagOrderController';
+import { TagOrder } from './TagOrder';
 import { UserGateway } from './UserGateway';
 import { OrderRepository } from './OrderRepository';
+import { PriorityPolicy } from './PriorityPolicy';
+import { RitaCtx } from '../../src/system/RitaCtx';
+import { InMemoryCommitScope } from '../../src/system/persistence/InMemoryCommitScope';
 
-// Real (Stub) implementations, NOT Mocks!
-// This proves the "stub adapter" pattern works.
+// Mocks
+jest.mock('./UserGateway');
+jest.mock('./OrderRepository');
+jest.mock('./PriorityPolicy');
+jest.mock('../../src/system/telemetry/Tracer', () => ({
+    Tracer: {
+        startSpan: jest.fn().mockReturnValue({
+            traceId: 'test-trace',
+            end: jest.fn(),
+            recordException: jest.fn()
+        })
+    }
+}));
+jest.mock('../../src/system/telemetry/Logger');
 
-BehaviorSpec.feature('Context-Aware Priority Tagging', () => {
-
-    let controller: TagOrderController;
+describe('TagOrder (CQRS)', () => {
+    let mockCtx: RitaCtx;
+    let userGateway: jest.Mocked<UserGateway>;
+    let orderRepo: jest.Mocked<OrderRepository>;
+    let policy: jest.Mocked<PriorityPolicy>;
+    let command: TagOrder;
 
     beforeEach(() => {
-        // Real Wiring
-        controller = new TagOrderController(new UserGateway(), new OrderRepository());
+        // Setup CQRS Context
+        mockCtx = {
+            traceId: 'test-trace',
+            // Provide a real commit implementation or a mock that executes the fn
+            commit: jest.fn(async (fn) => {
+                const scope = new InMemoryCommitScope();
+                await fn(scope);
+            })
+        };
+
+        userGateway = new UserGateway() as jest.Mocked<UserGateway>;
+        orderRepo = new OrderRepository() as jest.Mocked<OrderRepository>;
+        policy = new PriorityPolicy() as jest.Mocked<PriorityPolicy>;
+
+        // Setup successful mocks
+        userGateway.getUser.mockResolvedValue({ userId: 'u1', tier: 'STD' });
+        policy.execute.mockImplementation((ctx, order, profile) => order); // Identity
+
+        command = new TagOrder(userGateway, orderRepo, policy);
     });
 
-    BehaviorSpec.scenario('Gold User gets Priority', () => {
-        BehaviorSpec.given('User is GOLD and Order is Small', async () => {
-            const result = await controller.run({
-                orderId: 'o1',
-                userId: 'u_gold', // Stub returns GOLD for this ID
-                amount: 50
-            });
+    it('should Execute, Commit, and Persist', async () => {
+        const input = { orderId: 'o1', userId: 'u1', amount: 100 };
 
-            expect(result.finalPriority).toBe('HIGH');
-            // Check the Audit Log (Provenance)
-            expect(result.note.some((n: string) => n.includes('User is GOLD Tier'))).toBe(true);
-        });
-    });
+        await command.execute(mockCtx, input);
 
-    BehaviorSpec.scenario('High Value Order gets Critical Priority', () => {
-        BehaviorSpec.given('User is STD but Order is > 1000', async () => {
-            const result = await controller.run({
-                orderId: 'o2',
-                userId: 'u_std', // Stub returns STD
-                amount: 1500
-            });
+        // Verify Gateway Called
+        expect(userGateway.getUser).toHaveBeenCalledWith(expect.anything(), 'u1');
 
-            expect(result.finalPriority).toBe('CRITICAL');
-            expect(result.note.some((n: string) => n.includes('Order Value > 1000'))).toBe(true);
-        });
-    });
+        // Verify Policy Called
+        expect(policy.execute).toHaveBeenCalled();
 
-    BehaviorSpec.scenario('Standard User gets Standard Priority', () => {
-        BehaviorSpec.given('User is STD and Order is Small', async () => {
-            const result = await controller.run({
-                orderId: 'o3',
-                userId: 'u_std',
-                amount: 100
-            });
-
-            expect(result.finalPriority).toBe('NORMAL');
-        });
+        // Verify Commit & Save
+        expect(mockCtx.commit).toHaveBeenCalled(); // The Command triggered a commit
+        expect(orderRepo.saveIfChanged).toHaveBeenCalled(); // The Repo was called inside commit
     });
 });

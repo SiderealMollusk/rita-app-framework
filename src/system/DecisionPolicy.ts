@@ -84,9 +84,15 @@ export abstract class DecisionPolicy<TTarget extends BaseValueObject<any>, TCont
             return currentTarget;
 
         } catch (err: any) {
-            span.recordException(err);
             span.end();
             throw err;
         }
     }
 }
+
+// TODO(P0-SAFETY): Make PolicyToken unforgeable outside the framework. Currently PolicyToken.create() is public and exported, so any code can mint a token and call _evolve. Fix by moving token creation to a module-private capability (not exported), and do not export PolicyToken (or export only its type, not constructor/factory). DecisionPolicy should be the only code able to authorize evolutions.
+
+// TODO(P1-CQRS): Stop applying evolutions directly in DecisionPolicy if you want “final state wins” at the use-case level. Consider returning a list of evolutions (ChangeRequests) and letting Command commit/apply them in one place. If you keep current behavior, then base command should still own persistence (saveIfChanged) and not autosave per policy.
+
+// TODO(P1): Include target identity in evolution logs when available (e.g., if BaseValueObject has an id field or optional interface), so logs read: “Proposing Evolution on Order:o_demo_1”.
+

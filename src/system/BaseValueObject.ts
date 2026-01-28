@@ -1,93 +1,89 @@
 import { AgentGuidanceError } from './AgentGuidanceError';
-import { PolicyToken } from './DecisionPolicy'; // Import the Token
+import { PolicyToken } from './DecisionPolicy';
+import { RitaClock } from './Clock';
 
 /**
  * The "Black Box" Recorder.
- * 
- * All Value Objects must extend this.
- * It enforces:
- * 1. Strict Immutability (Readonly)
- * 2. Data Provenance (Stack Trace on creation)
- * 3. Restricted Mutation (Only Policies can evolve via Token)
+ * Every Value Object in the system inherits from this.
+ * It enforces that you can't change state without leaving a trail.
  */
-export abstract class BaseValueObject<TSchema> {
-    // The actual data storage
-    public readonly _data: Readonly<TSchema>;
-
-    // Provenance Metadata
+export abstract class BaseValueObject<TData> {
+    public readonly _data: TData;
+    // Provenance is built-in. You cannot opt-out.
     public readonly _provenance: {
-        readonly createdAt: string;
-        readonly createdBy: string; // Stack trace snippet or "Constructor"
-        readonly history: readonly string[]; // List of reasons for previous mutations
+        timestamp: Date;
+        by: string;
+        history: Array<{ at: Date; reason: string; diff: Partial<TData> }>;
     };
 
-    constructor(data: TSchema, history: string[] = []) {
-        this.validate(data);
-        this._data = Object.freeze(data);
+    /**
+     * @param data The initial state.
+     * @param provenance Optional specific provenance (usually for rehydration).
+     */
+    constructor(data: TData, provenance?: BaseValueObject<TData>['_provenance']) {
+        this.validate(data); // "Always Valid" rule.
 
-        // Capture Stack Trace to find "Who" created this
-        // We hackily parse the Error stack to find the caller
-        const stack = new Error().stack?.split('\n') || [];
-        const caller = stack[2]?.trim() || 'Unknown';
+        this._data = Object.freeze({ ...data }); // Immutable by default.
 
-        this._provenance = {
-            createdAt: new Date().toISOString(),
-            createdBy: caller,
-            history: Object.freeze([...history])
+        // If no provenance provided (new object), start the history.
+        this._provenance = provenance || {
+            timestamp: RitaClock.now(),
+            by: 'Constructor',
+            history: []
         };
+        Object.freeze(this._provenance);
     }
 
     /**
-     * RESTRICTED EVOLUTION.
-     * Only accessible by authorized Policies holding a Token.
+     * Users must implement validation logic.
+     * Throws if data is invalid.
+     */
+    protected abstract validate(data: TData): void;
+
+    /**
+     * The ONLY way to change state.
+     * Protected: Only accessible by DecisionPolicy (or tests via helpers).
      * 
-     * @param changes Partial data to update
-     * @param reason MANDATORY reason string
-     * @param token Proof of authorization
+     * @param changes Partial data to apply.
+     * @param reason Why is this changing? (Mandatory)
+     * @param token Proof that a Policy authorized this.
      */
-    public _evolve(changes: Partial<TSchema>, reason: string, token: PolicyToken): this {
-        // TRAP: The Unauthorized Mutation
-        if (!token || !(token instanceof PolicyToken)) {
-            throw new AgentGuidanceError(
-                "Unauthorized State Change",
-                "You tried to call _evolve() without a valid PolicyToken. " +
-                "Only DecisionPolicy subclasses can evolve Value Objects."
-            );
+    public _evolve(changes: Partial<TData>, reason: string, token: PolicyToken): this {
+        if (!token) {
+            throw new AgentGuidanceError("Unauthorized Evolution! You must provide a PolicyToken.",
+                "Ensure you are calling _evolve inside a DecisionPolicy and passing the policy's token.");
+        }
+        if (!reason) {
+            throw new AgentGuidanceError("Unexplained Evolution! You must provide a reason string.",
+                "Add a descriptive reason string to the _evolve call (e.g. 'Customer upgraded tier').");
         }
 
-        // TRAP: The Silent Mutation
-        if (!reason || reason.trim().length === 0) {
-            throw new AgentGuidanceError(
-                "Missing Mutation Reason",
-                "You calling _evolve() but left the 'reason' argument empty."
-            );
-        }
 
+        // 1. Calculate new state
         const newData = { ...this._data, ...changes };
-        const newHistory = [...this._provenance.history, `[${new Date().toISOString()}] ${reason}`];
 
-        // Return new instance of the same class
-        // We cast to 'any' to dynamically instantiate the child class
-        return new (this.constructor as any)(newData, newHistory);
-    }
+        // 2. Validate again (invariants must hold)
+        this.validate(newData);
 
-    /**
-     * Hook for validation logic.
-     * Child classes should throw if data is invalid.
-     */
-    protected abstract validate(data: TSchema): void;
-
-    /**
-     * Helper to inspect data for logging (prevents large dumps).
-     */
-    public toJSON() {
-        return {
-            type: this.constructor.name,
-            data: this._data,
-            provenance: {
-                evolutionCount: this._provenance.history.length,
-                lastReason: this._provenance.history[this._provenance.history.length - 1]
-            }
-        };
+        // 3. Return NEW instance (Immutability) with appended history
+        // @ts-ignore - we know 'this.constructor' is the Child Class
+        return new this.constructor(newData, {
+            timestamp: RitaClock.now(),
+            by: 'Policy', // We know it's a policy because of the token
+            history: [
+                ...this._provenance.history,
+                {
+                    at: RitaClock.now(),
+                    reason: reason,
+                    diff: changes
+                }
+            ]
+        });
     }
 }
+
+// TODO(P0-SAFETY): Change _evolve visibility from public to protected (or at least clearly “framework-only”). If it must remain public, enforce an unforgeable token (see DecisionPolicy TODO) so external callers cannot evolve even with “any”.
+
+// TODO(P1): Add a simple revision number (rev) into provenance or data to make “save only changed” and optimistic concurrency easy later. Increment rev on evolve. Keep history as-is.
+
+// TODO(P1): Decide whether provenance history should remain unbounded; add a note about potential truncation/compaction for long-lived objects (optional; punt).

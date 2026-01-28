@@ -56,3 +56,8 @@ export abstract class BaseInteraction<TInput, TOutput> {
         }
     }
 }
+
+// TODO(P0-CQRS): Add an explicit “interaction kind” concept: QueryInteraction vs CommandInteraction (or a flag on executeUseCase) to construct RitaCtx with/without commit capability. Commands get ctx.commit; queries do not.
+
+// TODO(P1): Add idempotencyKey plumbing option at the interaction boundary (optional input field or derived key) but keep “punt” unless needed; document intended usage.
+

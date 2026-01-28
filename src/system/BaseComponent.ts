@@ -75,3 +75,10 @@ export abstract class BaseComponent<TInput, TOutput> {
         return input;
     }
 }
+
+// TODO(P0-CQRS): Split BaseComponent into CQRS-aware base classes. Keep BaseComponent for now but introduce BaseCommand and BaseQuery (new files) and migrate examples/tests to them. BaseCommand is allowed to call ctx.commit; BaseQuery must not have access to commit or writers.
+
+// TODO(P0-CQRS): Remove the confusing comment “THE HOLE We pass NEW span ID as traceId”; instead clarify trace propagation. Confirm childCtx should carry same traceId; do not mutate semantics later.
+
+// TODO(P1): Add an invariant test: Query handler cannot write (compile-time via types and/or runtime via commit capability absence).
+
