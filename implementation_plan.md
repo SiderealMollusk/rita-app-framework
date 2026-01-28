@@ -1,44 +1,52 @@
-# Phase 1: The Foundation - Implementation Plan
+# Phase 4: The Pilot Feature - Implementation Plan
 
 ## Goal Description
-Build the "Invisible Railings" of the Agent-First Framework. This includes the core system primitives that enforce logging, tracing, and immutable data provenance.
+Implement a complete, vertical slice feature: **Place Order**.
+This serves as the "Proof of Concept" (PoC) to verify that all framework primitives (`Val`, `Ops`, `DecisionPolicy`, `Hexagon`, `BaseInteraction`, `BaseGateway`) work together cohesively.
 
 ## Proposed Changes
 
-### 1.1 Telemetry & Logging
-#### [NEW] [Logger.ts](file:///Users/virgil/Dev/rita-app-framework/src/system/telemetry/Logger.ts)
-- Implement a structured logger wrapper (around `console` for now, extensible later).
-- Support `info`, `warn`, `error`, `debug`.
-- Enforce structured metadata (correlation IDs).
+### 4.1 The Contract
+#### [NEW] [hex.ts](file:///Users/virgil/Dev/rita-app-framework/src/features/place-order/hex.ts)
+- Use `Hexagon.define()` to declare the "Place Order" Pod.
+- Explicitly list the Use Case, Policy, Interaction, and Gateway.
 
-#### [NEW] [Tracer.ts](file:///Users/virgil/Dev/rita-app-framework/src/system/telemetry/Tracer.ts)
-- Implement a simple `Span` and `Tracer` simulation.
-- Support `startSpan`, `end`, `recordException`.
+### 4.2 The Behavior (TDD)
+#### [NEW] [PlaceOrder.spec.ts](file:///Users/virgil/Dev/rita-app-framework/src/features/place-order/PlaceOrder.spec.ts)
+- Use `BehaviorSpec` to define the feature.
+- **Scenario:** "Customer places a valid order".
+- **Scenario:** "Order rejected due to rule violation (e.g., negative qty)".
 
-### 1.2 The Logic Wrapper
-#### [NEW] [BaseComponent.ts](file:///Users/virgil/Dev/rita-app-framework/src/system/BaseComponent.ts)
-- Abstract class extending the "Template Method Pattern".
-- `public execute(input)`: handles logging, tracing, and error catching.
-- `protected abstract _run(input)`: the "hole" the Agent fills.
+### 4.3 The Domain
+#### [NEW] [Order.ts](file:///Users/virgil/Dev/rita-app-framework/src/features/place-order/Order.ts)
+- `Order` Entity (BaseEntity).
+- `OrderStatus` and `OrderLineItem` VOs.
 
-### 1.3 The Data Primitive
-#### [NEW] [BaseValueObject.ts](file:///Users/virgil/Dev/rita-app-framework/src/system/BaseValueObject.ts)
-- **Terminology Update**: Replacing `StrictDTO` with standard DDD terms.
-- Immutable base class for objects *without* identity.
-- Constructor captures stack trace ("Data Born").
-- `with()` method enforces "Reasoned Mutation".
+#### [NEW] [PlaceOrderPolicy.ts](file:///Users/virgil/Dev/rita-app-framework/src/features/place-order/PlaceOrderPolicy.ts)
+- Extends `DecisionPolicy`.
+- Logic: If total > 1000, set status to VIP.
+- Logic: If qty <= 0, REJECT (via `falseFn` or throwing).
 
-#### [NEW] [BaseEntity.ts](file:///Users/virgil/Dev/rita-app-framework/src/system/BaseEntity.ts)
-- Extends functionality of Immutable Record for objects *with* Identity.
-- Similar "Reasoned Mutation" and provenance tracking.
+### 4.4 The Use Case (Imperative Shell)
+#### [NEW] [PlaceOrder.ts](file:///Users/virgil/Dev/rita-app-framework/src/features/place-order/PlaceOrder.ts)
+- Extends `BaseComponent`.
+- Orchestrator:
+    1. Load/Create Order.
+    2. Apply `PlaceOrderPolicy`.
+    3. Save via Gateway.
 
-#### [NEW] [AgentGuidanceError.ts](file:///Users/virgil/Dev/rita-app-framework/src/system/AgentGuidanceError.ts)
-- The "Instructional Exception" class (🛑 AGENT HALT).
+### 4.5 The Boundaries
+#### [NEW] [PlaceOrderController.ts](file:///Users/virgil/Dev/rita-app-framework/src/features/place-order/PlaceOrderController.ts)
+- Extends `BaseInteraction`.
+- Accepts JSON, sanitizes, calls Use Case.
+
+#### [NEW] [OrderRepository.ts](file:///Users/virgil/Dev/rita-app-framework/src/features/place-order/OrderRepository.ts)
+- Extends `BaseGateway`.
+- Simulates DB save with `safeExecute`.
 
 ## Verification Plan
 
 ### Automated Tests
-- Create a test script `tests/phase1_verification.ts`.
-- **Test 1 (Logging)**: Instantiate a dummy component, run it, verify logs appear with correlation ID.
-- **Test 2 (Provenance)**: Create a `BaseValueObject`, print it to see if `_provenance` is captured.
-- **Test 3 (Traps)**: Try to call `.with()` without a reason string and assert it throws `AgentGuidanceError`.
+- Run `PlaceOrder.spec.ts`.
+- Verify the end-to-end flow using the behavior spec.
+- Check logs to ensure `TraceId` propagates from Controller -> UseCase -> Policy -> Gateway.

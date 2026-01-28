@@ -5,25 +5,26 @@
     - [x] Install dependencies (`typescript`, `@types/node`, `ts-node`, `yaml`) <!-- id: 2 -->
     - [x] Configure `tsconfig.json` <!-- id: 3 -->
     - [x] Create Directory Structure <!-- id: 4 -->
-- [/] Phase 1: The Foundation (The Invisible Railings) <!-- id: 5 -->
-    - [ ] 1.1 Telemetry & Logging (`/src/system/telemetry`) <!-- id: 6 -->
-    - [ ] 1.2 The Logic Wrapper (`/src/system/BaseComponent.ts`) <!-- id: 7 -->
-    - [ ] 1.3 The Data Primitive (`/src/system/DomainEntity.ts`) <!-- id: 8 -->
-- [ ] Phase 2: The Observables (The Narrative Engine) <!-- id: 9 -->
-    - [ ] 2.1 The Wrapper (`/src/system/observables/Val.ts`) <!-- id: 10 -->
-    - [ ] 2.2 The Operators (`/src/system/observables/Ops.ts`) <!-- id: 11 -->
-    - [ ] 2.3 The Logic Engine (`/src/system/DecisionMutator.ts`) <!-- id: 12 -->
-- [ ] Phase 3: The Boundaries (The Hexagon) <!-- id: 13 -->
-    - [ ] 3.1 Inbound Base (`/src/system/BaseInteraction.ts`) <!-- id: 14 -->
-    - [ ] 3.2 Outbound Base (`/src/system/BaseGateway.ts`) <!-- id: 15 -->
-    - [ ] 3.3 The Definition Primitive (`/src/system/Hexagon.ts`) <!-- id: 16 -->
-    - [ ] 3.4 The Test Primitive (`/src/system/BehaviorSpec.ts`) <!-- id: 17 -->
-- [ ] Phase 4: The Pilot Feature (Proof of Concept) <!-- id: 18 -->
-    - [ ] 4.1 The Contract (`/src/features/place-order/hex.ts`) <!-- id: 19 -->
-    - [ ] 4.2 The Behavior (`/src/features/place-order/PlaceOrder.spec.ts`) <!-- id: 20 -->
-    - [ ] 4.3 The Evidence (`/src/features/place-order/model/OrderEntity.ts`) <!-- id: 21 -->
-    - [ ] 4.4 The Narrative (`/src/features/place-order/policies/ApplyHighValue.ts`) <!-- id: 22 -->
-    - [ ] 4.5 The Core (`/src/features/place-order/PlaceOrderUseCase.ts`) <!-- id: 23 -->
+    - [x] Setup Jest Unit Testing <!-- id: 4b -->
+- [x] Phase 1: The Foundation (The Invisible Railings) <!-- id: 5 -->
+    - [x] 1.1 Telemetry & Logging (`/src/system/telemetry`) <!-- id: 6 -->
+    - [x] 1.2 The Logic Wrapper (`/src/system/BaseComponent.ts`) <!-- id: 7 -->
+    - [x] 1.3 The Data Primitive (`/src/system/DomainEntity.ts`) <!-- id: 8 -->
+- [x] Phase 2: The Observables (The Narrative Engine) <!-- id: 9 -->
+    - [x] 2.1 The Wrapper (`/src/system/observables/Val.ts`) <!-- id: 10 -->
+    - [x] 2.2 The Operators (`/src/system/observables/Ops.ts`) <!-- id: 11 -->
+    - [x] 2.3 The Logic Engine (`/src/system/DecisionPolicy.ts`) <!-- id: 12 -->
+- [x] Phase 3: The Boundaries (The Hexagon) <!-- id: 13 -->
+    - [x] 3.1 Inbound Base (`/src/system/BaseInteraction.ts`) <!-- id: 14 -->
+    - [x] 3.2 Outbound Base (`/src/system/BaseGateway.ts`) <!-- id: 15 -->
+    - [x] 3.3 The Definition Primitive (`/src/system/Hexagon.ts`) <!-- id: 16 -->
+    - [x] 3.4 The Test Primitive (`/src/system/BehaviorSpec.ts`) <!-- id: 17 -->
+- [x] Phase 4: The Pilot Feature (Proof of Concept) <!-- id: 18 -->
+    - [x] 4.1 The Contract (`/dev-demo/010_placeOrder/hex.ts`) <!-- id: 19 -->
+    - [x] 4.2 The Behavior (`/dev-demo/010_placeOrder/PlaceOrder.spec.ts`) <!-- id: 20 -->
+    - [x] 4.3 The Domain (`/dev-demo/010_placeOrder/Order.ts`, `Policy.ts`) <!-- id: 21 -->
+    - [x] 4.4 The Use Case (`/dev-demo/010_placeOrder/PlaceOrder.ts`) <!-- id: 22 -->
+    - [x] 4.5 The Boundaries (`Controller.ts`, `Repository.ts`) <!-- id: 23 -->
     - [ ] 4.6 The Trigger (`/src/features/place-order/adapters/in/PlaceOrderController.ts`) <!-- id: 24 -->
 - [ ] Phase 5: The Wiring (Runtime) <!-- id: 25 -->
     - [ ] 5.1 The Manifest (`/config/app.wiring.yaml`) <!-- id: 26 -->
