@@ -1,4 +1,4 @@
-import { DecisionPolicy, Evolution } from '../../src/system/DecisionPolicy';
+import { DecisionPolicy, Evolution } from '../../src/core/DecisionPolicy';
 import { Order } from './Order';
 import { CustomerProfile } from './CustomerProfile';
 

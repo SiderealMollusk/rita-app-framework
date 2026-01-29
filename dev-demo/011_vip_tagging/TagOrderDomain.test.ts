@@ -4,7 +4,7 @@ import { CustomerProfile } from './CustomerProfile';
 import { Order } from './Order';
 import { TagOrder } from './TagOrder';
 import { OrderRepository } from './OrderRepository';
-import { SystemCtx } from '../../src/system/SystemCtx';
+import { SystemCtx } from '../../src/core/SystemCtx';
 
 
 
@@ -71,7 +71,7 @@ describe('PriorityPolicy', () => {
 
 
 // --- OrderRepository Tests ---
-import { CommitScope } from '../../src/system/persistence/CommitScope';
+import { CommitScope } from '../../src/core/persistence/CommitScope';
 
 describe('OrderRepository (Demo)', () => {
 

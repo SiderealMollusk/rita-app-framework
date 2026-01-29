@@ -40,7 +40,7 @@ describe('TagOrderController', () => {
         // But simpler: Just verify executeUseCase delegates to this.useCase
         // Since we mocked TagOrder, we can check if it was instantiated.
         // And we can mock the executeUseCase method of the controller (partial mock)
-        // OR rely on BaseInteraction acting correctly (tested elsewhere)
+        // OR rely on BaseUseCase acting correctly (tested elsewhere)
 
         // Let's mock the internal useCase.execute call? NO, executeUseCase logic is in Base.
 

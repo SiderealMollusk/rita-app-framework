@@ -1,8 +1,8 @@
-import { BaseComponent } from '../../src/system/BaseComponent';
+import { BaseComponent } from '../../src/core/BaseComponent';
 import { Order } from './Order';
 import { PlaceOrderPolicy } from './PlaceOrderPolicy';
 import { OrderRepository } from './OrderRepository';
-import { SystemCtx } from '../../src/system/SystemCtx';
+import { SystemCtx } from '../../src/core/SystemCtx';
 
 export type PlaceOrderInput = {
     id: string;

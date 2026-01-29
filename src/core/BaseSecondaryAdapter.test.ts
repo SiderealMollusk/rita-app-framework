@@ -1,4 +1,4 @@
-import { BaseGateway } from './BaseGateway';
+import { BaseSecondaryAdapter } from './BaseSecondaryAdapter';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
 import { SystemCtx } from './SystemCtx';
@@ -6,7 +6,7 @@ import { SystemCtx } from './SystemCtx';
 jest.mock('./telemetry/Logger');
 jest.mock('./telemetry/Tracer');
 
-class TestGateway extends BaseGateway {
+class TestGateway extends BaseSecondaryAdapter {
     public async fetchData(ctx: SystemCtx, shouldFail: boolean): Promise<string> {
         return this.safeExecute(ctx, 'fetchData', async () => {
             if (shouldFail) throw new Error('Network Error');
@@ -20,7 +20,7 @@ class TestGateway extends BaseGateway {
 }
 
 
-describe('BaseGateway', () => {
+describe('BaseSecondaryAdapter', () => {
     let gateway: TestGateway;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let mockSpan: any;
@@ -40,7 +40,7 @@ describe('BaseGateway', () => {
         const result = await gateway.fetchData({ traceId: 'test-trace' }, false);
 
         expect(result).toBe('Success');
-        expect(Tracer.startSpan).toHaveBeenCalledWith(expect.stringContaining('[Gateway] TestGateway:fetchData'), expect.anything());
+        expect(Tracer.startSpan).toHaveBeenCalledWith(expect.stringContaining('[SecondaryAdapter] TestGateway:fetchData'), expect.anything());
         expect(Logger.debug).toHaveBeenCalledWith(expect.stringContaining('succeeded'), expect.any(Object));
         expect(mockSpan.end).toHaveBeenCalled();
     });

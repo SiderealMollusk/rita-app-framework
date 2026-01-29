@@ -1,4 +1,4 @@
-import { CommandInteraction } from '../../src/system/BaseInteraction';
+import { CommandUseCase } from '../../src/core/BaseUseCase';
 import { TagOrder } from './TagOrder';
 import { UserGateway } from './UserGateway';
 import { OrderRepository } from './OrderRepository';
@@ -9,7 +9,7 @@ type RequestDTO = {
     amount: number;
 };
 
-export class TagOrderController extends CommandInteraction<RequestDTO, TagOrderResponse> {
+export class TagOrderController extends CommandUseCase<RequestDTO, TagOrderResponse> {
 
 
     private useCase: TagOrder;

@@ -12,7 +12,7 @@ import { SystemCtx } from './SystemCtx';
  * 1. Must implement Abstract Ports defined in the Domain.
  * 2. Must wrap external calls in `safeExecute`.
  */
-export abstract class BaseGateway {
+export abstract class BaseSecondaryAdapter {
     protected readonly name: string;
 
     constructor() {
@@ -27,16 +27,16 @@ export abstract class BaseGateway {
      * @param fn The async function performing the side effect
      */
     protected async safeExecute<T>(ctx: SystemCtx, operationName: string, fn: () => Promise<T>): Promise<T> {
-        const span = Tracer.startSpan(`[Gateway] ${this.name}:${operationName}`, ctx);
+        const span = Tracer.startSpan(`[SecondaryAdapter] ${this.name}:${operationName}`, ctx);
 
         try {
-            Logger.debug(`[Gateway] ${this.name} calling ${operationName}...`, {
+            Logger.debug(`[SecondaryAdapter] ${this.name} calling ${operationName}...`, {
                 traceId: span.traceId
             });
 
             const result = await fn();
 
-            Logger.debug(`[Gateway] ${this.name}:${operationName} succeeded`, {
+            Logger.debug(`[SecondaryAdapter] ${this.name}:${operationName} succeeded`, {
                 traceId: span.traceId
             });
             span.end();
@@ -44,7 +44,7 @@ export abstract class BaseGateway {
 
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : String(err);
-            Logger.error(`[Gateway] ${this.name}:${operationName} FAILED`, {
+            Logger.error(`[SecondaryAdapter] ${this.name}:${operationName} FAILED`, {
                 error: errorMessage,
                 traceId: span.traceId
             });

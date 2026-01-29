@@ -32,7 +32,7 @@ export default tseslint.config(
                 {
                     "paths": [
                         {
-                            "name": "src/system/persistence/CommitScope",
+                            "name": "src/core/persistence/CommitScope",
                             "importNames": ["CommitScope"],
                             "message": "Do not import CommitScope directly. Use the CommitScope type definition if needed, but implementation details are restricted."
                         }
@@ -44,11 +44,11 @@ export default tseslint.config(
     // --- Overrides via Flat Config (just another object in the array) ---
     {
         // Policies should be PURE LOGIC.
-        files: ["src/system/DecisionPolicy.ts", "src/**/policies/*.ts"],
+        files: ["src/core/DecisionPolicy.ts", "src/**/policies/*.ts"],
         rules: {
             "no-restricted-imports": ["error", {
                 "patterns": [{
-                    "group": ["**/persistence/*", "**/BaseGateway"],
+                    "group": ["**/persistence/*", "**/BaseSecondaryAdapter"],
                     "message": "Policies must be pure. Do not import persistence or gateways."
                 }]
             }]
@@ -56,7 +56,7 @@ export default tseslint.config(
     },
     {
         // Queries should NOT write.
-        files: ["src/system/cqrs/BaseQuery.ts", "src/**/queries/*.ts"],
+        files: ["src/core/cqrs/BaseQuery.ts", "src/**/queries/*.ts"],
         rules: {
             "no-restricted-imports": ["error", {
                 "patterns": [{
@@ -68,7 +68,7 @@ export default tseslint.config(
     },
     {
         // Clock is allowed to use Date
-        files: ["src/system/Clock.ts"],
+        files: ["src/core/Clock.ts"],
         rules: {
             "no-restricted-syntax": "off"
         }
@@ -76,12 +76,12 @@ export default tseslint.config(
     {
         // Framework Base Classes need 'any' for generic defaulting
         files: [
-            "src/system/BaseInteraction.ts",
-            "src/system/BaseComponent.ts",
-            "src/system/BaseGateway.ts",
-            "src/system/telemetry/Logger.ts",
-            "src/system/DecisionPolicy.ts",
-            "src/system/BehaviorSpec.ts"
+            "src/core/BaseUseCase.ts",
+            "src/core/BaseComponent.ts",
+            "src/core/BaseSecondaryAdapter.ts",
+            "src/core/telemetry/Logger.ts",
+            "src/core/DecisionPolicy.ts",
+            "src/core/BehaviorSpec.ts"
         ],
         rules: {
             "@typescript-eslint/no-explicit-any": "off"

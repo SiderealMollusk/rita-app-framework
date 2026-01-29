@@ -1,4 +1,4 @@
-import { Hexagon } from '../../src/system/Hexagon';
+import { Hexagon } from '../../src/core/Hexagon';
 import { PlaceOrder } from './PlaceOrder';
 import { PlaceOrderPolicy } from './PlaceOrderPolicy';
 import { PlaceOrderController } from './PlaceOrderController';

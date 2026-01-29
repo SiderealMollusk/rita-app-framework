@@ -1,11 +1,11 @@
-import { BehaviorSpec } from '../../src/system/BehaviorSpec';
+import { BehaviorSpec } from '../../src/core/BehaviorSpec';
 import { PlaceOrderController, PlaceOrderResponse } from './PlaceOrderController';
 import { OrderRepository } from './OrderRepository';
 import { PlaceOrderInput } from './PlaceOrder';
 
 
 // Mocks
-jest.mock('../../src/system/telemetry/Logger');
+jest.mock('../../src/core/telemetry/Logger');
 
 BehaviorSpec.feature('Place Order', () => {
 

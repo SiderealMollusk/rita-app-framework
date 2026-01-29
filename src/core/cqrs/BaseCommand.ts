@@ -21,7 +21,7 @@ export abstract class BaseCommand<TInput, TOutput> extends BaseComponent<TInput,
     protected async commit(ctx: SystemCtx, fn: (scope: CommitScope) => Promise<void>): Promise<void> {
         if (!ctx.commit) {
             throw new AgentGuidanceError("Cmd: Missing Commit Capability! Are you running as a Query?",
-                "Ensure this Command is invoked by a CommandInteraction or test that provides a commit capability.");
+                "Ensure this Command is invoked by a CommandUseCase or test that provides a commit capability.");
         }
         await ctx.commit(fn);
     }

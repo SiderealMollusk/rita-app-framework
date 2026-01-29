@@ -1,4 +1,4 @@
-import { Hexagon } from '../../src/system/Hexagon';
+import { Hexagon } from '../../src/core/Hexagon';
 import { TagOrder } from './TagOrder';
 import { PriorityPolicy } from './PriorityPolicy';
 import { TagOrderController } from './TagOrderController';

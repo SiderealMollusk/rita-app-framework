@@ -13,13 +13,13 @@ If you add a new kernel concept, add it to the table before writing code.
 
 | Name | Kind | Layer | Purpose (1 line) |
 | :--- | :--- | :--- | :--- |
-| TrustLevel | Type | Kernel / Context | Runtime trust classification: external, internal, system |
-| BaseCtx | Interface | Kernel / Context | Common execution context (trace, trust, capabilities) |
+| PrivilegeLevel | Type | Kernel / Context | Runtime privilege classification: external, internal, system |
+| BaseCtx | Interface | Kernel / Context | Common execution context (trace, privilege, capabilities) |
 | ExternalCtx | Type | Kernel / Context | Untrusted request context (ingress only) |
-| InternalCtx | Type | Kernel / Context | Trusted, read-only application context |
+| InternalCtx | Type | Kernel / Context | Trusted, read-only application context (PrivilegeLevel = Internal) |
 | CommandCtx | Type | Kernel / Context | Trusted, write-capable context |
 | SystemCtx | Type | Kernel / Context | Admin/system-only context |
-| ContextFactory | Module | Kernel / Context | Creates and promotes contexts between trust levels |
+| ContextFactory | Module | Kernel / Context | Creates and promotes contexts between privilege levels |
 | Capability | Interface | Kernel / Auth | Marker for privileged authority tokens |
 | CapabilityBag | Class | Kernel / Auth | Stores and validates capabilities |
 | PolicyToken | Capability | Kernel / Auth | Authorizes domain state evolution |
@@ -31,15 +31,15 @@ If you add a new kernel concept, add it to the table before writing code.
 | BaseValueObject | Abstract Class | Kernel / Domain | Immutable domain state with provenance |
 | Policy | Abstract Class | Kernel / Domain | Pure decision logic that proposes evolutions |
 | Evolution | Type | Kernel / Domain | Data-only state change request |
-| Interaction | Abstract Class | Kernel / Application | Orchestrates use cases and side effects |
-| QueryInteraction | Abstract Class | Kernel / Application | Read-only interaction (CQRS) |
+| UseCase | Abstract Class | Kernel / Application | Orchestrates domain logic and side effects |
+| QueryUseCase | Abstract Class | Kernel / Application | Read-only orchestration (CQRS) |
 | PrimaryPort | Interface | Kernel / Ports | Inbound contract into application logic |
 | SecondaryPort | Interface | Kernel / Ports | Outbound contract to infrastructure |
 | ClockPort | Interface | Kernel / Ports | Time source abstraction |
-| BaseGateway | Abstract Class | Kernel / Adapters | External system adapter (API, queue, LLM, etc.) |
+| BaseSecondaryAdapter | Abstract Class | Kernel / Adapters | External system adapter (API, queue, LLM, etc.) |
 | BaseRepository | Abstract Class | Kernel / Persistence | Parameterized persistence adapter |
 | AdminRepository | Abstract Class | Kernel / Persistence | System-only raw DB access |
-| BaseIngress | Abstract Class | Kernel / Adapters | External entrypoint (HTTP/CLI/Event) |
+| BasePrimaryAdapter | Abstract Class | Kernel / Adapters | External entrypoint (HTTP/CLI/Event) |
 | ForbiddenScan | Tool | Kernel / Enforcement | Test-time forbidden API scanner |
 | BoundaryCheck | Tool | Kernel / Enforcement | Test-time layer dependency validator |
 2) Context System

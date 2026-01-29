@@ -1,5 +1,5 @@
 
-import { BaseGateway } from '../BaseGateway';
+import { BaseSecondaryAdapter } from '../BaseSecondaryAdapter';
 import { CommitScope } from './CommitScope';
 import { Writer } from './RepositoryPorts';
 
@@ -8,10 +8,10 @@ import { Writer } from './RepositoryPorts';
 /**
  * Base Repository.
  * 
- * Extends Gateway to get `safeExecute` and tracing.
+ * Extends SecondaryAdapter to get `safeExecute` and tracing.
  * Implements Writer semantics for OCC.
  */
-export abstract class BaseRepository<T> extends BaseGateway implements Writer<T> {
+export abstract class BaseRepository<T> extends BaseSecondaryAdapter implements Writer<T> {
 
     // Writers must implement the actual persistence logic
     protected abstract _write(scope: CommitScope, id: string, data: T, expectedVersion?: number): Promise<void>;

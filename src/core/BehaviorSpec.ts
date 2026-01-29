@@ -5,7 +5,7 @@ import { Logger } from './telemetry/Logger';
  * 
  * Provides a standard structure for Feature Tests:
  * - Given (Context/State)
- * - When (Action/Interaction)
+ * - When (Action/UseCase)
  * - Then (Assertion/Output)
  * 
  * This is just a semantic wrapper around Jest to enforce

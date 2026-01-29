@@ -28,7 +28,7 @@ export class Hexagon {
         if (!config.name) throw new Error("Hexagon must have a name");
 
         // In the future, we can add reflection checks here 
-        // e.g., ensure all Interactions actually extend BaseInteraction
+        // e.g., ensure all UseCases actually extend BaseUseCase
 
         return Object.freeze(config);
     }

@@ -28,10 +28,10 @@ A rule is “real” only if it is enforced by at least two channels.
 
 The primary enforcement mechanism is that “normal code” is written by inheriting kernel base classes that already contain the correct rails.
 
-2.1 Ingress Enforcement: BaseInteraction and BaseIngress
+2.1 Primary Adapter Enforcement: BaseUseCase and BasePrimaryAdapter
 
 Required properties enforced by inheritance:
-	•	The context root is created at ingress.
+	•	The context root is created at the primary adapter.
 	•	ExternalCtx exists only here.
 	•	Promotion occurs only here.
 	•	Root span exists only here.
@@ -42,7 +42,7 @@ Locked-in behaviors:
 	•	Failure is logged at the boundary.
 
 Bypass cost:
-	•	If a developer does not extend BaseInteraction/BaseIngress, they must reimplement:
+	•	If a developer does not extend BaseUseCase/BasePrimaryAdapter, they must reimplement:
 	•	trace root creation
 	•	promotion constraints
 	•	consistent structured logging
@@ -53,7 +53,7 @@ Bypass cost:
 2.2 Application Enforcement: BaseComponent
 
 Required properties enforced by inheritance:
-	•	Every Interaction/use-case execution is traced and logged.
+	•	Every UseCase/use-case execution is traced and logged.
 	•	Errors are captured, traced, and rethrown.
 	•	Context is propagated.
 
@@ -93,7 +93,7 @@ Bypass cost:
 
 ⸻
 
-2.4 Egress Enforcement: BaseGateway
+2.4 Secondary Adapter Enforcement: BaseSecondaryAdapter
 
 Required properties enforced by inheritance:
 	•	All external calls are traced and logged uniformly.
@@ -104,7 +104,7 @@ Locked-in behaviors:
 	•	operationName is explicit in spans.
 
 Bypass cost:
-	•	If a developer does not extend BaseGateway, they must reimplement:
+	•	If a developer does not extend BaseSecondaryAdapter, they must reimplement:
 	•	safe execution wrapper
 	•	trace and logging discipline
 	•	consistent error capture
@@ -134,7 +134,7 @@ Bypass cost:
 
 3) Type-Level Enforcement
 
-3.1 Trust types
+3.1 Privilege types
 
 The kernel defines distinct context types:
 	•	ExternalCtx
@@ -212,7 +212,7 @@ Linting is used for:
 Linting is not used for:
 	•	architectural enforcement
 	•	security enforcement
-	•	trust boundary enforcement
+	•	privilege boundary enforcement
 
 Architectural enforcement lives in tests and runtime checks, not lint.
 
@@ -249,10 +249,10 @@ B) BoundaryCheck
 Validates import boundaries between layers.
 
 Minimum boundary constraints:
-	•	Domain must not import adapters (gateways/repositories)
-	•	Policies must not import gateways/repositories
+	•	Domain must not import adapters (secondary adapters/repositories)
+	•	Policies must not import secondary adapters/repositories
 	•	Adapters must not import domain/application orchestration
-	•	Ingress must not import repositories directly (must call application ports/Interactions)
+	•	Primary Adapters must not import repositories directly (must call application ports/UseCases)
 
 C) RepositorySignatureCheck
 Prevents accidental introduction of raw query surfaces.
@@ -266,6 +266,8 @@ Rules:
 6.2 Behavioral test policy (TDD/BDD/etc.)
 
 This is how we classify and enforce testing scope. Each test type has allowed dependencies.
+
+**Golden Rule:** Every line of code committed to the repository must be covered by an automated test. Goal: **100% Coverage**.
 
 Unit tests
 Targets:
@@ -291,7 +293,7 @@ Integration tests
 Targets:
 	•	BaseComponent orchestration with real adapter stubs
 	•	BaseRepository implementations against a real DB (or containerized DB)
-	•	BaseGateway implementations against a mocked external service
+	•	BaseSecondaryAdapter implementations against a mocked external service
 
 Rules:
 	•	may use real persistence drivers only inside repository implementations
@@ -305,8 +307,8 @@ Enforcement:
 
 End-to-end tests
 Targets:
-	•	BaseInteraction/BaseIngress entrypoints
-	•	Full flow: External input → promotion → Interaction → Policy → Repository/Gateway
+	•	BaseUseCase/BasePrimaryAdapter entrypoints
+	•	Full flow: External input → promotion → UseCase → Policy → Repository/SecondaryAdapter
 
 Rules:
 	•	must start from ExternalCtx created at ingress
@@ -319,7 +321,7 @@ Rules:
 Contract tests (ports/adapters)
 Targets:
 	•	SecondaryPort contract compliance by adapters
-	•	PrimaryPort/Interaction contract behavior
+	•	PrimaryPort/UseCase contract behavior
 
 Rules:
 	•	verify adapter behavior without embedding business rules
@@ -332,14 +334,14 @@ Rules:
 Trace tests validate that runtime execution matches 40_execution_flows.md.
 
 Minimum required trace shape:
-	•	Interaction span is root
+	•	UseCase span is root
 	•	Component span is child
 	•	Policy span is under component
-	•	Gateway/Repository spans are under component, never under policy
+	•	Secondary Adapter/Repository spans are under component, never under policy
 
 Forbidden trace relationships:
-	•	Policy span → Gateway/Repository span
-	•	Gateway/Repository span → Component span (adapters cannot initiate orchestration)
+	•	Policy span → Secondary Adapter/Repository span
+	•	Secondary Adapter/Repository span → Component span (adapters cannot initiate orchestration)
 
 Failure mode:
 	•	tests fail with a trace tree excerpt identifying the offending parent-child relationship
@@ -374,7 +376,7 @@ Minimum operational rule:
 	•	PolicyToken required by BaseValueObject._evolve
 	•	Runtime enforcement:
 	•	capability requirement checks
-	•	trust checks
+	•	privilege checks
 	•	Architecture tests:
 	•	ensure only ContextFactory constructs contexts
 	•	ensure capabilities cannot be constructed in app code

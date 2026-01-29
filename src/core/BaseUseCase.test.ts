@@ -1,4 +1,4 @@
-import { CommandInteraction } from './BaseInteraction';
+import { CommandUseCase } from './BaseUseCase';
 import { BaseComponent } from './BaseComponent';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
@@ -17,7 +17,7 @@ class TestUseCase extends BaseComponent<string, string> {
 }
 
 // Concrete Interaction
-class TestController extends CommandInteraction<string, string> {
+class TestController extends CommandUseCase<string, string> {
 
     private useCase = new TestUseCase();
 
@@ -27,7 +27,7 @@ class TestController extends CommandInteraction<string, string> {
 }
 
 
-describe('BaseInteraction', () => {
+describe('BaseUseCase', () => {
     let controller: TestController;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let mockSpan: any;
@@ -49,7 +49,7 @@ describe('BaseInteraction', () => {
         expect(result).toBe('Prepared: hello');
 
         // Verify tracing chain
-        expect(Tracer.startSpan).toHaveBeenCalledWith(expect.stringContaining('[Interaction] TestController'), expect.any(Object));
+        expect(Tracer.startSpan).toHaveBeenCalledWith(expect.stringContaining('[UseCase] TestController'), expect.any(Object));
         expect(mockSpan.end).toHaveBeenCalled();
     });
 
@@ -57,7 +57,7 @@ describe('BaseInteraction', () => {
         await expect(controller.run('fail')).rejects.toThrow('UseCase Boom');
 
         expect(Logger.error).toHaveBeenCalledWith(
-            expect.stringContaining('[Interaction] TestController failed'),
+            expect.stringContaining('[UseCase] TestController failed'),
             expect.any(Object)
         );
 

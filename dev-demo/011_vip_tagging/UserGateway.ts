@@ -1,8 +1,8 @@
-import { BaseGateway } from '../../src/system/BaseGateway';
+import { BaseSecondaryAdapter } from '../../src/core/BaseSecondaryAdapter';
 import { CustomerProfile } from './CustomerProfile';
-import { SystemCtx } from '../../src/system/SystemCtx';
+import { SystemCtx } from '../../src/core/SystemCtx';
 
-export class UserGateway extends BaseGateway {
+export class UserGateway extends BaseSecondaryAdapter {
 
     // STUB: Simulate a network call to a User Service
     public async getUser(ctx: SystemCtx, userId: string): Promise<CustomerProfile> {

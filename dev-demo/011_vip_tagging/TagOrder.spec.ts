@@ -2,14 +2,14 @@ import { TagOrder } from './TagOrder';
 import { UserGateway } from './UserGateway';
 import { OrderRepository } from './OrderRepository';
 import { PriorityPolicy } from './PriorityPolicy';
-import { SystemCtx } from '../../src/system/SystemCtx';
-import { InMemoryCommitScope } from '../../src/system/persistence/InMemoryCommitScope';
+import { SystemCtx } from '../../src/core/SystemCtx';
+import { InMemoryCommitScope } from '../../src/core/persistence/InMemoryCommitScope';
 
 // Mocks
 jest.mock('./UserGateway');
 jest.mock('./OrderRepository');
 jest.mock('./PriorityPolicy');
-jest.mock('../../src/system/telemetry/Tracer', () => ({
+jest.mock('../../src/core/telemetry/Tracer', () => ({
     Tracer: {
         startSpan: jest.fn().mockReturnValue({
             traceId: 'test-trace',
@@ -18,7 +18,7 @@ jest.mock('../../src/system/telemetry/Tracer', () => ({
         })
     }
 }));
-jest.mock('../../src/system/telemetry/Logger');
+jest.mock('../../src/core/telemetry/Logger');
 
 describe('TagOrder (CQRS)', () => {
     let mockCtx: SystemCtx;

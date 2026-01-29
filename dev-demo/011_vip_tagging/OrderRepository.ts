@@ -1,5 +1,5 @@
-import { BaseRepository } from '../../src/system/persistence/BaseRepository';
-import { CommitScope } from '../../src/system/persistence/CommitScope';
+import { BaseRepository } from '../../src/core/persistence/BaseRepository';
+import { CommitScope } from '../../src/core/persistence/CommitScope';
 import { Order } from './Order';
 
 

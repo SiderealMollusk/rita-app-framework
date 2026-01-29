@@ -8,7 +8,7 @@ import { InMemoryCommitScope } from './persistence/InMemoryCommitScope'; // Defa
 /**
  * The Inbound Boundary (Controller/CLI/Event Handler).
  */
-export abstract class BaseInteraction<TInput, TOutput> {
+export abstract class BaseUseCase<TInput, TOutput> {
     protected readonly name: string;
 
     constructor() {
@@ -46,14 +46,14 @@ export abstract class BaseInteraction<TInput, TOutput> {
             };
         }
 
-        const span = Tracer.startSpan(`[Interaction] ${this.name} -> ${useCase.constructor.name}`, ctx);
+        const span = Tracer.startSpan(`[UseCase] ${this.name} -> ${useCase.constructor.name}`, ctx);
 
         try {
             const result = await useCase.execute(ctx, input);
             span.end();
             return result;
         } catch (err: any) {
-            Logger.error(`[Interaction] ${this.name} failed to execute ${useCase.constructor.name}`, {
+            Logger.error(`[UseCase] ${this.name} failed to execute ${useCase.constructor.name}`, {
                 error: err.message,
                 traceId: span.traceId
             });
@@ -64,13 +64,13 @@ export abstract class BaseInteraction<TInput, TOutput> {
     }
 }
 
-export abstract class QueryInteraction<TIn, TOut> extends BaseInteraction<TIn, TOut> {
+export abstract class QueryUseCase<TIn, TOut> extends BaseUseCase<TIn, TOut> {
     protected async executeUseCase<UIn, UOut>(useCase: BaseComponent<UIn, UOut>, input: UIn): Promise<UOut> {
         return this.executeUseCaseInternal(useCase, input, false); // No Commit
     }
 }
 
-export abstract class CommandInteraction<TIn, TOut> extends BaseInteraction<TIn, TOut> {
+export abstract class CommandUseCase<TIn, TOut> extends BaseUseCase<TIn, TOut> {
     protected async executeUseCase<UIn, UOut>(useCase: BaseComponent<UIn, UOut>, input: UIn): Promise<UOut> {
         return this.executeUseCaseInternal(useCase, input, true); // Has Commit
     }

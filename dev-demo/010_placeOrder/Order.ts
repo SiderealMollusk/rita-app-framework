@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../src/system/BaseEntity';
+import { BaseEntity } from '../../src/core/BaseEntity';
 
 export type OrderProps = {
     id: string;

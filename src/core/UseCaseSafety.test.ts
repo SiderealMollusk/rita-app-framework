@@ -1,4 +1,4 @@
-import { QueryInteraction, CommandInteraction } from './BaseInteraction';
+import { QueryUseCase, CommandUseCase } from './BaseUseCase';
 import { BaseComponent } from './BaseComponent';
 
 
@@ -22,7 +22,7 @@ class StubComponent extends BaseComponent<any, SystemCtx> {
 // --- Future Subclasses (We define them here as if they existed) --- //
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-class MyQuery extends QueryInteraction<any, SystemCtx> {
+class MyQuery extends QueryUseCase<any, SystemCtx> {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public async run(input: any): Promise<SystemCtx> {
@@ -32,7 +32,7 @@ class MyQuery extends QueryInteraction<any, SystemCtx> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-class MyCommand extends CommandInteraction<any, SystemCtx> {
+class MyCommand extends CommandUseCase<any, SystemCtx> {
 
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,9 +42,9 @@ class MyCommand extends CommandInteraction<any, SystemCtx> {
     }
 }
 
-describe('Interaction Safety (TDD)', () => {
+describe('UseCase Safety (TDD)', () => {
 
-    it('should succeed for QueryInteraction (No Commit Scope)', async () => {
+    it('should succeed for QueryUseCase (No Commit Scope)', async () => {
         const interaction = new MyQuery();
         const ctx: SystemCtx = await interaction.run({});
 
@@ -52,7 +52,7 @@ describe('Interaction Safety (TDD)', () => {
         expect(ctx.commit).toBeUndefined();
     });
 
-    it('should succeed for CommandInteraction (Has Commit Scope)', async () => {
+    it('should succeed for CommandUseCase (Has Commit Scope)', async () => {
         const interaction = new MyCommand();
         const ctx: SystemCtx = await interaction.run({});
 

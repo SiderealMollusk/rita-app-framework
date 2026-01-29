@@ -1,9 +1,9 @@
-import { BaseCommand } from '../../src/system/cqrs/BaseCommand';
+import { BaseCommand } from '../../src/core/cqrs/BaseCommand';
 import { Order } from './Order';
 import { UserGateway } from './UserGateway';
 import { OrderRepository } from './OrderRepository';
 import { PriorityPolicy } from './PriorityPolicy';
-import { SystemCtx } from '../../src/system/SystemCtx';
+import { SystemCtx } from '../../src/core/SystemCtx';
 
 type Input = {
     orderId: string;

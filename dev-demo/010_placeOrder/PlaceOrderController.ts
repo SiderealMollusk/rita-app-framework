@@ -2,10 +2,10 @@ import { OrderRepository } from './OrderRepository';
 
 
 
-import { CommandInteraction } from '../../src/system/BaseInteraction';
+import { CommandUseCase } from '../../src/core/BaseUseCase';
 import { PlaceOrder, PlaceOrderInput } from './PlaceOrder';
 
-export class PlaceOrderController extends CommandInteraction<PlaceOrderInput, PlaceOrderResponse> {
+export class PlaceOrderController extends CommandUseCase<PlaceOrderInput, PlaceOrderResponse> {
 
     private useCase: PlaceOrder;
 
