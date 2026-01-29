@@ -21,8 +21,9 @@ describe('Hex Definitions (Manifest Integrity)', () => {
         expect(Object.isFrozen(TagOrderHex)).toBe(true);
 
         expect(new TagOrderHex.primaryAdapter(
-            new TagOrderHex.domain(new TagOrderHex.secondaryAdapters[0]())
+            new TagOrderHex.application(new TagOrderHex.secondaryAdapters[0]())
         )).toBeDefined();
+
     });
 
 
