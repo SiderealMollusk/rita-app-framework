@@ -1,16 +1,16 @@
-30 — Kernel API (Ṛta Framework)
+30 — Core API (Ṛta Framework)
 
 This document defines the non-negotiable core of Ṛta.
-Everything else in the framework is an extension, adapter, or specialization of this kernel.
+Everything else in the framework is an extension, adapter, or specialization of this core.
 
 Goal:
 If you freeze this API, you freeze the architecture itself.
 
 ⸻
 
-1) Purpose of the Kernel
+1) Purpose of the Core
 
-The Kernel exists to enforce:
+The Core exists to enforce:
 	•	Execution governance
 	•	Trust boundaries
 	•	Capability-based authority
@@ -27,9 +27,9 @@ Most framework evolution should happen outside this layer.
 
 ⸻
 
-2) Kernel Responsibilities
+2) Core Responsibilities
 
-The Kernel owns:
+The Core owns:
 	•	Context construction and promotion
 	•	Capability construction and validation
 	•	Execution wrappers (spans, logs, errors)
@@ -37,7 +37,7 @@ The Kernel owns:
 	•	Time and randomness sources
 	•	Boundary enforcement hooks
 
-The Kernel does NOT own:
+The Core does NOT own:
 	•	Business logic
 	•	Domain models
 	•	Infrastructure clients
@@ -46,7 +46,7 @@ The Kernel does NOT own:
 
 ⸻
 
-3) Kernel Modules (Minimum Set)
+3) Core Modules (Minimum Set)
 
 These modules form the irreducible core:
 
@@ -68,7 +68,7 @@ Execution System
 	•	Tracer
 	•	Span
 	•	Logger
-	•	BaseInteraction
+	•	BaseUseCase
 	•	BaseComponent
 
 Domain Safety
@@ -100,7 +100,7 @@ Properties:
 	•	trustLevel = external
 	•	capabilities = none
 
-InternalCtx
+InternalCtx (and QueryCtx)
 Represents trusted, deterministic execution.
 
 Properties:
@@ -148,7 +148,7 @@ Capability Base
 A capability is:
 	•	A real object instance (not a string, not a flag)
 	•	Non-serializable
-	•	Constructed only by the Kernel
+	•	Constructed only by the Core
 
 CapabilityBag
 
@@ -172,7 +172,7 @@ Authorizes system-level operations.
 
 6) Execution API
 
-BaseInteraction
+BaseUseCase
 
 Role:
 	•	Ingress boundary
@@ -180,10 +180,10 @@ Role:
 	•	Trust promotion point
 
 Guarantees:
-	•	Creates ExternalCtx
+	•	Creates ExternalCtx (or appropriate start context)
 	•	Wraps execution in root span
 	•	Logs failure at boundary
-	•	Only calls Application layer
+	•	Only calls Application layer (BaseComponent)
 
 ⸻
 
@@ -251,8 +251,8 @@ Functions:
 	•	now()
 
 Rules:
-	•	Date.now and new Date are forbidden outside adapters and system code
-	•	Clock access must be explicit in kernel imports
+	•	Date.now and new Date are forbidden outside adapters/core
+	•	Clock access must be explicit in core imports
 
 ⸻
 
@@ -272,7 +272,7 @@ Rules:
 
 9) Persistence Safety API
 
-BaseRepository (Kernel-owned interface)
+BaseRepository (Core-owned interface)
 
 Rules:
 	•	Write methods require CommandCtx
@@ -292,7 +292,7 @@ Explicitly Forbidden:
 
 10) Gateway Safety API
 
-BaseGateway
+BaseSecondaryAdapter
 
 Role:
 	•	External system adapter
@@ -320,7 +320,7 @@ Called inside:
 
 ⸻
 
-ForbiddenScan (Test Tool)
+ForbiddenScan (Test-Time Structural Enforcement)
 
 Scans for:
 	•	Date.now in domain/policy
@@ -336,7 +336,7 @@ Failure mode:
 
 ⸻
 
-12) Kernel Error Types
+12) Core Error Types
 
 Standardized errors:
 	•	UnauthorizedContextError
@@ -352,7 +352,7 @@ Purpose:
 
 13) Stability Promise
 
-Kernel code changes require:
+Core code changes require:
 	•	Migration notes
 	•	Contract updates
 	•	Test updates
@@ -364,7 +364,7 @@ If this layer churns, the framework loses its spine.
 
 14) Design Philosophy
 
-The Kernel is not:
+The Core is not:
 	•	Flexible
 	•	Friendly
 	•	Expressive

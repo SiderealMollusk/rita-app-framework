@@ -1,11 +1,11 @@
 10 — Parts List (Ṛta Framework)
 
 This document is the inventory of nouns in Ṛta.
-If something exists in the kernel, it appears in the table below.
+If something exists in the core, it appears in the table below.
 
 Rule:
 
-If you add a new kernel concept, add it to the table before writing code.
+If you add a new core concept, add it to the table before writing code.
 
 ⸻
 
@@ -13,35 +13,35 @@ If you add a new kernel concept, add it to the table before writing code.
 
 | Name | Kind | Layer | Purpose (1 line) |
 | :--- | :--- | :--- | :--- |
-| PrivilegeLevel | Type | Kernel / Context | Runtime privilege classification: external, internal, system |
-| BaseCtx | Interface | Kernel / Context | Common execution context (trace, privilege, capabilities) |
-| ExternalCtx | Type | Kernel / Context | Untrusted request context (ingress only) |
-| InternalCtx | Type | Kernel / Context | Trusted, read-only application context (PrivilegeLevel = Internal) |
-| CommandCtx | Type | Kernel / Context | Trusted, write-capable context |
-| SystemCtx | Type | Kernel / Context | Admin/system-only context |
-| ContextFactory | Module | Kernel / Context | Creates and promotes contexts between privilege levels |
-| Capability | Interface | Kernel / Auth | Marker for privileged authority tokens |
-| CapabilityBag | Class | Kernel / Auth | Stores and validates capabilities |
-| PolicyToken | Capability | Kernel / Auth | Authorizes domain state evolution |
-| CommitCap | Capability | Kernel / Auth | Authorizes durable writes |
-| RawQueryCap | Capability | Kernel / Auth | Authorizes raw DB queries (system-only) |
-| Tracer | Service | Kernel / Observability | Creates and manages spans |
-| Span | Type | Kernel / Observability | Represents a traced execution unit |
-| Logger | Service | Kernel / Observability | Structured logging with context |
-| BaseValueObject | Abstract Class | Kernel / Domain | Immutable domain state with provenance |
-| Policy | Abstract Class | Kernel / Domain | Pure decision logic that proposes evolutions |
-| Evolution | Type | Kernel / Domain | Data-only state change request |
-| UseCase | Abstract Class | Kernel / Application | Orchestrates domain logic and side effects |
-| QueryUseCase | Abstract Class | Kernel / Application | Read-only orchestration (CQRS) |
-| PrimaryPort | Interface | Kernel / Ports | Inbound contract into application logic |
-| SecondaryPort | Interface | Kernel / Ports | Outbound contract to infrastructure |
-| ClockPort | Interface | Kernel / Ports | Time source abstraction |
-| BaseSecondaryAdapter | Abstract Class | Kernel / Adapters | External system adapter (API, queue, LLM, etc.) |
-| BaseRepository | Abstract Class | Kernel / Persistence | Parameterized persistence adapter |
-| AdminRepository | Abstract Class | Kernel / Persistence | System-only raw DB access |
-| BasePrimaryAdapter | Abstract Class | Kernel / Adapters | External entrypoint (HTTP/CLI/Event) |
-| ForbiddenScan | Tool | Kernel / Enforcement | Test-time forbidden API scanner |
-| BoundaryCheck | Tool | Kernel / Enforcement | Test-time layer dependency validator |
+| TrustLevel | Type | Core / Context | Runtime privilege classification: external, internal, system |
+| BaseCtx | Interface | Core / Context | Common execution context (trace, privilege, capabilities) |
+| ExternalCtx | Type | Core / Context | Untrusted request context (ingress only) |
+| InternalCtx | Type | Core / Context | Trusted, read-only application context (PrivilegeLevel = Internal) |
+| CommandCtx | Type | Core / Context | Trusted, write-capable context |
+| SystemCtx | Type | Core / Context | Admin/system-only context |
+| ContextFactory | Module | Core / Context | Creates and promotes contexts between privilege levels |
+| Capability | Interface | Core / Auth | Marker for privileged authority tokens |
+| CapabilityBag | Class | Core / Auth | Stores and validates capabilities |
+| PolicyToken | Capability | Core / Auth | Authorizes domain state evolution |
+| CommitCap | Capability | Core / Auth | Authorizes durable writes |
+| RawQueryCap | Capability | Core / Auth | Authorizes raw DB queries (system-only) |
+| Tracer | Service | Core / Observability | Creates and manages spans |
+| Span | Type | Core / Observability | Represents a traced execution unit |
+| Logger | Service | Core / Observability | Structured logging with context |
+| BaseValueObject | Abstract Class | Core / Domain | Immutable domain state with provenance |
+| Policy | Abstract Class | Core / Domain | Pure decision logic that proposes evolutions |
+| Evolution | Type | Core / Domain | Data-only state change request |
+| UseCase | Abstract Class | Core / Application | Orchestrates domain logic and side effects |
+| QueryUseCase | Abstract Class | Core / Application | Read-only orchestration (CQRS) |
+| PrimaryPort | Interface | Core / Ports | Inbound contract into application logic |
+| SecondaryPort | Interface | Core / Ports | Outbound contract to infrastructure |
+| ClockPort | Interface | Core / Ports | Time source abstraction |
+| BaseSecondaryAdapter | Abstract Class | Core / Adapters | External system adapter (API, queue, LLM, etc.) |
+| BaseRepository | Abstract Class | Core / Persistence | Parameterized persistence adapter |
+| AdminRepository | Abstract Class | Core / Persistence | System-only raw DB access |
+| BasePrimaryAdapter | Abstract Class | Core / Adapters | External entrypoint (HTTP/CLI/Event) |
+| ForbiddenScan | Tool | Core / Enforcement | Test-time structural audit tool |
+| BoundaryCheck | Tool | Core / Enforcement | Test-time layer dependency validator |
 2) Context System
 
 TrustLevel
@@ -118,7 +118,7 @@ Kind: Interface
 Purpose: Marker for unforgeable authority tokens.
 
 Rule:
-	•	Capabilities are created only by kernel code
+	•	Capabilities are created only by core code
 
 ⸻
 
@@ -221,7 +221,7 @@ Fields:
 
 Rule:
 	•	Domain code returns Evolutions
-	•	Framework applies them
+	•	Time source abstraction, injected by core.
 
 ⸻
 
@@ -244,9 +244,9 @@ Rules:
 
 6) Application Layer
 
-Interaction
+UseCase
 
-Purpose: Orchestrates reads, policies, and writes.
+Purpose: Orchestrates domain logic and side effects.
 
 Responsibilities:
 	•	call ports
@@ -260,9 +260,9 @@ Rules:
 
 ⸻
 
-QueryInteraction
+QueryUseCase
 
-Purpose: CQRS read-only interaction.
+Purpose: CQRS read-only orchestration.
 
 Rules:
 	•	Must not call repositories in write mode
@@ -278,7 +278,7 @@ PrimaryPort
 Purpose: Inbound contract into the application.
 
 Used by:
-	•	Ingress adapters
+	•	Primary Adapters
 
 Rule:
 	•	Defines what the system does, not how
@@ -290,7 +290,7 @@ SecondaryPort
 Purpose: Outbound contract to infrastructure.
 
 Used by:
-	•	Gateways
+	•	Secondary Adapters
 	•	Repositories
 
 Rule:
@@ -310,7 +310,7 @@ Rules:
 
 8) Adapters
 
-BaseIngress
+BasePrimaryAdapter
 
 Purpose: External boundary.
 
@@ -320,14 +320,14 @@ Responsibilities:
 	•	authenticate
 	•	create ExternalCtx
 	•	promote context
-	•	invoke Interaction
+	•	invoke UseCase
 
 Rules:
 	•	Only place where “dirty” data is allowed
 
 ⸻
 
-BaseGateway
+BaseSecondaryAdapter
 
 Purpose: External system adapter.
 
@@ -396,18 +396,18 @@ Purpose: Dependency validator.
 
 Checks:
 	•	Domain does not import adapters
-	•	Ingress does not import repositories
-	•	Policies do not import gateways
+	•	Primary Adapter does not import repositories
+	•	Policies do not import secondary adapters
 
 ⸻
 
 11) Layer Call Rules (Summary)
 | Layer | May Call | Must Not Call |
 | :--- | :--- | :--- |
-| Ingress | Interaction, ContextFactory | Domain, Repository, Gateway |
-| Application | Policy, Ports, Gateway, Repository | Infrastructure libs |
+| Primary Adapter | UseCase, ContextFactory | Domain, Repository, Secondary Adapter |
+| Application | Policy, Ports, Secondary Adapter, Repository | Infrastructure libs |
 | Domain | Domain only | Any I/O, adapters, ports |
-| Gateway | External libs | Domain, Application |
+| Secondary Adapter | External libs | Domain, Application |
 | Repository | DB drivers | Domain, Application |
 | System | Everything | Nothing (but loud) |
 
@@ -416,12 +416,12 @@ Checks:
 12) Extension Points (What Apps Implement)
 
 Application authors provide:
-	•	Ingress adapters
-	•	Interactions
+	•	Primary Adapters
+	•	UseCases
 	•	Policies
 	•	Domain ValueObjects/Entities
-	•	Gateways
+	•	Secondary Adapters
 	•	Repositories
 	•	Ports
 
-The kernel provides everything else.
+The core provides everything else.

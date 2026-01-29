@@ -31,7 +31,7 @@ The primary enforcement mechanism is that “normal code” is written by inheri
 2.1 Primary Adapter Enforcement: BaseUseCase and BasePrimaryAdapter
 
 Required properties enforced by inheritance:
-	•	The context root is created at the primary adapter.
+	•	The context root is created at the primary adapter (BaseUseCase).
 	•	ExternalCtx exists only here.
 	•	Promotion occurs only here.
 	•	Root span exists only here.
@@ -56,6 +56,7 @@ Required properties enforced by inheritance:
 	•	Every UseCase/use-case execution is traced and logged.
 	•	Errors are captured, traced, and rethrown.
 	•	Context is propagated.
+	•	Every UseCase (BaseComponent) execution is traced and logged.
 
 Locked-in behaviors:
 	•	Start/Completed/Failed logs are standardized.

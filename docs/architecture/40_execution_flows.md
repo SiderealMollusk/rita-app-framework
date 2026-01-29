@@ -37,7 +37,7 @@ Use this for:
 	•	User-driven actions
 
 Sequence
-	1.	Ingress
+	1.	Ingress (Primary Adapter)
 An adapter receives untrusted input.
 
 Examples:
@@ -45,7 +45,7 @@ Examples:
 	•	CLI handler
 	•	Queue consumer
 
-	2.	BaseInteraction.run
+	2.	BaseUseCase.run
 
 	•	Creates ExternalCtx
 	•	Assigns traceId
@@ -59,7 +59,7 @@ This marks input as sanitized and structurally valid.
 	4.	Application Orchestration (BaseComponent)
 
 	•	Starts child span
-	•	Fetches read models via repositories or gateways
+	•	Fetches read models via repositories or secondary adapters
 	•	Calls policies
 
 	5.	Policy Evaluation
@@ -87,7 +87,7 @@ This marks input as sanitized and structurally valid.
 
 Trace Shape
 
-Interaction Span
+UseCase Span
 → Component Span
 → Policy Span
 → Repository Span
@@ -103,9 +103,9 @@ Use this for:
 	•	Search endpoints
 
 Sequence
-	1.	Ingress
+	1.	Ingress (Primary Adapter)
 Receives untrusted input.
-	2.	BaseInteraction.run
+	2.	BaseUseCase.run
 Creates ExternalCtx.
 	3.	Promotion
 ExternalCtx → InternalCtx
@@ -139,7 +139,7 @@ Use this for:
 	•	Workflow steps
 
 Sequence
-	1.	System Ingress
+	1.	System Ingress (Primary Adapter)
 Kernel or scheduler creates InternalCtx.
 	2.	Optional Promotion
 InternalCtx → CommandCtx
@@ -275,14 +275,14 @@ They are inside the system.
 Domain Failure
 	•	Policy throws validation error
 	•	Component logs failure
-	•	Interaction logs boundary error
+	•	UseCase logs boundary error
 	•	Trace closes
 
 Infrastructure Failure
-	•	Gateway throws
+	•	Secondary Adapter throws
 	•	Span records exception
 	•	Component aborts
-	•	Interaction logs failure
+	•	UseCase logs failure
 
 ⸻
 
@@ -328,11 +328,11 @@ New context must be created instead.
 
 These flows must never exist:
 	•	ExternalCtx → Repository.save
-	•	Policy → Gateway
+	•	Policy → Secondary Adapter
 	•	Policy → Clock
-	•	Gateway → Component
+	•	Secondary Adapter → Component
 	•	Repository → Policy
-	•	Interaction → Policy
+	•	UseCase → Policy
 
 If any of these appear, architecture has been violated.
 
@@ -355,10 +355,10 @@ No step calls another step directly.
 
 Every valid flow must produce a trace that visually matches this hierarchy:
 
-Root Interaction
+Root UseCase
 → Application Component
 → Domain Policy
-→ Adapter or Repository
+→ Secondary Adapter or Repository
 
 If the trace graph does not look like this, the architecture is wrong.
 

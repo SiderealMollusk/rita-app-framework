@@ -18,7 +18,7 @@ Application code does not “just run.” The framework manages execution to ens
 	•	provenance recording
 
 Enforcement
-	•	All entrypoints must be Ingress adapters.
+	•	All entrypoints must be Primary Adapters.
 	•	All work must run under an explicit context.
 	•	No privileged operation occurs without capabilities.
 
@@ -36,7 +36,7 @@ Rules
 
 Enforcement
 	•	Runtime: missing context is a hard error in tracing/log wrappers.
-	•	Tests: boundary checks ensure kernel APIs always require ctx.
+	•	Tests: boundary checks ensure core APIs always require ctx.
 
 ⸻
 
@@ -51,11 +51,11 @@ Rules
 	•	read system time
 	•	use randomness
 	•	call external services
-	•	call repositories or gateways
-	•	Interactions may orchestrate I/O through ports/adapters only.
+	•	call secondary adapters
+	•	UseCases may orchestrate I/O through ports/adapters only.
 
 Enforcement
-	•	Test-time forbidden scans in domain directories.
+	•	Test-time structural compliance in domain directories.
 	•	Boundary import checks.
 
 ⸻
@@ -84,7 +84,7 @@ All side effects must pass through outbound adapters (Gateways and Repositories)
 
 Rules
 	•	Policies cannot call outbound adapters.
-	•	Interactions cannot call infrastructure libraries directly.
+	•	UseCases cannot call infrastructure libraries directly.
 	•	Adapters cannot call back into domain/application orchestration.
 
 Enforcement
@@ -98,10 +98,10 @@ Enforcement
 Ṛta code is classified into roles. Each role has allowed dependencies and forbidden behaviors.
 
 Roles:
-	•	Ingress (Primary Adapter)
-	•	Application (Interaction)
+	•	Primary Adapter (Ingress)
+	•	Application (UseCase)
 	•	Domain (Policy, Entities, Value Objects)
-	•	Egress (Gateway)
+	•	Secondary Adapter (Egress/Gateway)
 	•	Persistence (Repository)
 	•	System (Admin-only)
 
@@ -110,12 +110,12 @@ Roles:
 3) May-Call Matrix (The Law)
 | From Layer | May Call | Must Not Call |
 | :--- | :--- | :--- |
-| Ingress | ContextFactory, Interactions (Primary Ports) | Domain logic, Policies, Repositories, Gateways, DB drivers |
-| Application | Policies, Ports, Gateways, Repositories | DB drivers directly, raw network libraries directly |
-| Domain | Domain only | Any I/O, Ports, Gateways, Repositories, system time, randomness |
-| Gateway | External libs, safeExecute | Domain or Application orchestration |
+| Primary Adapter | ContextFactory, UseCases (Primary Ports) | Domain logic, Policies, Repositories, Secondary Adapters, DB drivers |
+| UseCase | Policies, Ports, Secondary Adapters, Repositories | DB drivers directly, raw network libraries directly |
+| Domain | Domain only | Any I/O, Ports, Secondary Adapters, Repositories, system time, randomness |
+| Secondary Adapter | External libs, safeExecute | Domain or Application orchestration |
 | Repository | DB drivers, safeExecute | Domain or Application orchestration |
-| System | Everything (explicit) | Nothing (but must be loud + capability gated) |
+| System | Everything (explicit) | Nothing (but must be loud + capability gated) | |
 Notes
 	•	“May Call” means direct imports and invocation are permitted.
 	•	“Must Not Call” is enforced via tests and code review.
@@ -136,7 +136,7 @@ Contract: External code cannot touch the interior
 
 Rules
 	•	ExternalCtx must never reach a Policy or Repository.
-	•	Ingress must promote ExternalCtx before calling Interactions that do real work.
+	•	Primary Adapter must promote ExternalCtx before calling UseCases that do real work.
 
 Enforcement
 	•	Type-level: Policy.execute requires InternalCtx.
@@ -147,7 +147,7 @@ Enforcement
 Contract: Promotion is explicit
 
 Rules
-	•	Promotion happens only in ingress adapters.
+	•	Promotion happens only in Primary Adapters.
 	•	Promotion is the only legal way to move External → Internal.
 	•	Promotion grants capabilities (never the reverse).
 
@@ -159,7 +159,7 @@ Enforcement
 
 5) Capability Boundaries
 
-Contract: Capabilities are kernel-owned
+Contract: Capabilities are core-owned
 
 Rules
 	•	No application code constructs capabilities.
@@ -222,7 +222,7 @@ Rules
 	•	Date.now
 	•	new Date
 	•	Math.random
-	•	Time must come from ClockPort (or kernel clock module) passed through the application layer.
+	•	Time must come from ClockPort (or core clock module) passed through the application layer.
 
 Enforcement
 	•	ForbiddenScan fails tests if those tokens appear in domain/policy directories.
@@ -235,7 +235,7 @@ Enforcement
 Contract: Adapters are leaf dependencies
 
 Rules
-	•	Gateways and Repositories must not invoke Policies or Interactions.
+	•	Secondary Adapters and Repositories must not invoke Policies or UseCases.
 	•	Adapters may emit logs/metrics only.
 	•	Adapters return data, not behavior.
 
@@ -263,7 +263,7 @@ Rules
 	•	Queries may call read-only repository methods if explicitly marked safe.
 
 Enforcement
-	•	Use QueryInteraction base type or Query folder rules + ForbiddenScan.
+	•	Use QueryUseCase base type or Query folder rules + Structural Tests.
 
 ⸻
 
@@ -280,7 +280,7 @@ Runtime guards
 	•	requireRawQuery(ctx) for admin repository methods
 
 Test-time scans
-	•	ForbiddenScan: banned APIs in domain/policy
+	•	ForbiddenScan/StructureTests: banned APIs in domain/policy
 	•	BoundaryCheck: forbidden imports across layers
 	•	RepositorySignatureCheck: rejects raw query methods outside admin persistence
 
