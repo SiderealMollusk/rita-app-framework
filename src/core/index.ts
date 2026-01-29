@@ -16,22 +16,29 @@ export * from './domain/BaseEntity';
 export * from './domain/DecisionPolicy';
 export * from './domain/PolicyToken';
 export * from './domain/RitaClock';
+export * from './domain/SimulatedClock';
+export * from './domain/SimulatedRandom';
 
 // Execution
 export * from './execution/BaseComponent';
 export * from './execution/BaseUseCase';
 export * from './execution/CommandUseCase';
 export * from './execution/QueryUseCase';
+export * from './execution/BaseProjector';
+export * from './execution/BaseProcessManager';
 
 // Adapters & Ports
 export * from './ports/ClockPort';
 export * from './ports/SecondaryPort';
 export * from './ports/UnitOfWorkPort';
+export * from './ports/EventBusPort';
 export * from './adapters/BaseSecondaryAdapter';
 export * from './adapters/BaseRepository';
 export * from './adapters/AdminRepository';
 export * from './adapters/UnitOfWork';
 export * from './adapters/BasePrimaryAdapter';
+export * from './adapters/InMemoryEventBus';
+export * from './adapters/InMemoryRepository';
 
 // Hexagon
 export * from './hexagon/HexagonSpec';
