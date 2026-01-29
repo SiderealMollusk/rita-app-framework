@@ -2,7 +2,7 @@ import { BaseSecondaryAdapter } from '../BaseSecondaryAdapter';
 import { BaseRepository } from '../BaseRepository';
 import { AdminRepository } from '../AdminRepository';
 import { ContextFactory } from '../../context/promotion/ContextFactory';
-import { InMemoryUnitOfWorkFactory } from '../InMemoryUnitOfWork';
+import { UnitOfWorkFactory } from '../UnitOfWork';
 import { BaseEntity } from '../../domain/BaseEntity';
 
 class MockEntity extends BaseEntity<{ name: string }> {
@@ -79,7 +79,7 @@ describe('Adapter Primitives', () => {
 
             await expect(repo.runQuery(internal as any, 'SELECT 1')).rejects.toThrow('Missing required capability: RawQueryCap');
 
-            const system = ContextFactory.elevateToSystem(internal);
+            const system = ContextFactory.promoteToSystem(internal);
             const result = await repo.runQuery(system, 'SELECT 1');
             expect(result.success).toBe(true);
         });
@@ -87,7 +87,7 @@ describe('Adapter Primitives', () => {
 
     describe('UnitOfWork', () => {
         it('should start UoW with CommandCtx', async () => {
-            const factory = new InMemoryUnitOfWorkFactory();
+            const factory = new UnitOfWorkFactory();
             const internal = ContextFactory.promoteToInternal(ContextFactory.createExternal());
 
             await expect(factory.start(internal as any)).rejects.toThrow('CommitCap');

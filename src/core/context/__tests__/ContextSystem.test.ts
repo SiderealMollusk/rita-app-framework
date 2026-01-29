@@ -34,7 +34,7 @@ describe('Context & Capability System', () => {
     it('should elevate internal to system and add all caps', () => {
         const external = ContextFactory.createExternal();
         const internal = ContextFactory.promoteToInternal(external);
-        const system = ContextFactory.elevateToSystem(internal);
+        const system = ContextFactory.promoteToSystem(internal);
 
         expect(system.trustLevel).toBe(TrustLevel.System);
         expect(system.capabilities.has(CommitCap)).toBe(true);
@@ -79,7 +79,7 @@ describe('Context & Capability System', () => {
     it('should handle multiple capabilities in the bag', () => {
         const external = ContextFactory.createExternal();
         const internal = ContextFactory.promoteToInternal(external);
-        const system = ContextFactory.elevateToSystem(internal);
+        const system = ContextFactory.promoteToSystem(internal);
 
         expect(system.capabilities.has(CommitCap)).toBe(true);
         expect(system.capabilities.has(RawQueryCap)).toBe(true);

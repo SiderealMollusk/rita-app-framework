@@ -5,8 +5,8 @@ import { Tracer } from '../telemetry/Tracer';
 import { Logger } from '../telemetry/Logger';
 
 /**
- * The Inbound Boundary (Primary Adapter base).
- * Manages context root creation and promotion.
+ * Orchestrates domain logic and side effects.
+ * Acts as the application layer boundary.
  */
 export abstract class BaseUseCase<TInput, TOutput> {
     protected readonly name: string;

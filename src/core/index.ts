@@ -30,18 +30,30 @@ export * from './ports/UnitOfWorkPort';
 export * from './adapters/BaseSecondaryAdapter';
 export * from './adapters/BaseRepository';
 export * from './adapters/AdminRepository';
-export * from './adapters/InMemoryUnitOfWork';
+export * from './adapters/UnitOfWork';
+export * from './adapters/BasePrimaryAdapter';
 
 // Hexagon
 export * from './hexagon/HexagonSpec';
 export * from './hexagon/HexagonLoader';
 export * from './hexagon/HexagonRegistry';
+export * from './hexagon/RoleModel';
 
 // Errors & Validation
 export * from './errors/KernelError';
 export * from './errors/AgentGuidanceError';
+export * from './errors/DomainValidationError';
+export * from './errors/NotFoundError';
+export * from './errors/BusinessRuleViolationError';
+export * from './errors/UnauthorizedError';
+export * from './errors/ForbiddenError';
+export * from './errors/DependencyFailureError';
 export * from './validation/Schema';
 
 // Telemetry
 export * from './telemetry/Logger';
 export * from './telemetry/Tracer';
+export * from './telemetry/Span';
+
+// Ports
+export * from './ports/PrimaryPort';
