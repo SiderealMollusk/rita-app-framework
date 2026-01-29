@@ -11,22 +11,14 @@ export class CommitCap extends Capability {
     }
 
     /** @internal */
-    static isAuthorized(cap: unknown): cap is CommitCap {
-        return cap instanceof CommitCap && authorized.has(cap);
-    }
-
-    /** @internal - accessible by mintCommitCap via cast */
-    private static _create(): CommitCap {
+    static createInternal(): CommitCap {
         const cap = new CommitCap();
         authorized.add(cap);
         return cap;
     }
-}
 
-/**
- * Restricted minting function.
- * ONLY import this from ContextFactory.
- */
-export function mintCommitCap(): CommitCap {
-    return (CommitCap as any)._create();
+    /** @internal */
+    static isAuthorized(cap: unknown): cap is CommitCap {
+        return cap instanceof CommitCap && authorized.has(cap);
+    }
 }

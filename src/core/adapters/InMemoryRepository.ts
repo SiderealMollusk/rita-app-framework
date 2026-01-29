@@ -34,7 +34,15 @@ export class InMemoryRepository<T extends BaseEntity<any, any>> extends BaseRepo
     }
 
     protected async _doSave(ctx: CommandCtx, entity: T): Promise<void> {
-        this.data.set(entity.id as string, entity);
+        const uow = ctx.uow as any;
+        if (uow && typeof uow.registerParticipant === 'function') {
+            uow.registerParticipant({
+                commit: async () => { this.data.set(entity.id as string, entity); },
+                rollback: async () => {}
+            });
+        } else {
+            this.data.set(entity.id as string, entity);
+        }
     }
 
     public async delete(ctx: CommandCtx, id: string): Promise<void> {

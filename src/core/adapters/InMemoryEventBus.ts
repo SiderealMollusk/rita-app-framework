@@ -1,4 +1,5 @@
 import { BaseCtx } from '../context/BaseCtx';
+import { CommandCtx } from '../context/CommandCtx';
 import { EventBusPort, DomainEvent, EventHandler } from '../ports/EventBusPort';
 import { Logger } from '../telemetry/Logger';
 import { Tracer } from '../telemetry/Tracer';
@@ -11,6 +12,12 @@ export class InMemoryEventBus implements EventBusPort {
     private handlers = new Map<string, EventHandler[]>();
 
     public async publish(ctx: BaseCtx, event: DomainEvent): Promise<void> {
+        const uow = (ctx as CommandCtx).uow as any;
+        if (uow && typeof uow.registerEvent === 'function') {
+            uow.registerEvent(ctx, event);
+            return;
+        }
+
         const span = Tracer.startSpan(`[EventBus] Publish ${event.name}`, ctx);
 
         try {

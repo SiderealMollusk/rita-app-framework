@@ -1,4 +1,4 @@
-import { SimulatedClock, SimulatedRandom, InMemoryEventBus } from '../../core';
+import { SimulatedClock, SimulatedRandom, InMemoryEventBus, Logger } from '../../core';
 import { Schema as z, SchemaType } from '../../core/validation/Schema';
 import * as util from 'util';
 
@@ -47,6 +47,7 @@ export class ScenarioRunner {
         for (const step of scenario.steps) {
             switch (step.kind) {
                 case 'wait':
+                    Logger.info(`[Sim: Wait]`, { ms: step.ms });
                     await this.world.clock.advance(step.ms);
                     break;
                 case 'act':
