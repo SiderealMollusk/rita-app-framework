@@ -1,7 +1,7 @@
 40 — Execution Flows (Ṛta Framework)
 
 This document defines the canonical runtime sequences of Ṛta.
-If 30_kernel_api.md is the law, this is the choreography.
+If 30_core_api.md is the law, this is the choreography.
 
 Every execution path in the system should resemble one of these flows.
 
@@ -140,7 +140,7 @@ Use this for:
 
 Sequence
 	1.	System Ingress (Primary Adapter)
-Kernel or scheduler creates InternalCtx.
+Core or scheduler creates InternalCtx.
 	2.	Optional Promotion
 InternalCtx → CommandCtx
 	3.	Application Orchestration
@@ -179,7 +179,7 @@ Use this for:
 
 Sequence
 	1.	System Entry
-Kernel creates SystemCtx.
+Core creates SystemCtx.
 	2.	Execution
 
 	•	Can access raw adapters
@@ -382,7 +382,7 @@ Water never flows uphill.
 
 This document is complete when:
 	•	Every execution path in the system maps to one of these flows
-	•	No forbidden flow is possible without bypassing the kernel
+	•	No forbidden flow is possible without bypassing the core
 	•	Traces visually confirm boundaries
 	•	Capabilities align with promotions
 	•	Event flows do not shortcut orchestration

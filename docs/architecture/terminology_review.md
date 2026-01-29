@@ -35,6 +35,11 @@ If approved, the next Refactor Task will apply these Regex replacements globally
 4.  `BaseIngress` (Hypothetical) -> `BasePrimaryAdapter`
 5.  `BaseGateway` -> `BaseSecondaryAdapter`
 
-## 4. Decision Required
+## 4. Decisions (Finalized)
 
-Do you approve the **Interaction -> UseCase** and **Hexagon -> Feature/Module** renames?
+*   **Interaction -> UseCase**: Approved.
+*   **Hexagon -> Feature/Module**: Approved (specifically using `Feature` or `Module` terminology in code).
+*   **src/system -> src/core**: Approved (following the project's existing `src/core` and the `structure_framework_runtime.md` vision).
+*   **CommitScope -> UnitOfWork**: Approved.
+*   **Gateway -> SecondaryAdapter**: Approved.
+*   **Ingress -> PrimaryAdapter**: Approved.

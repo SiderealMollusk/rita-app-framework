@@ -26,7 +26,7 @@ A rule is “real” only if it is enforced by at least two channels.
 
 2) Inheritance Enforcement
 
-The primary enforcement mechanism is that “normal code” is written by inheriting kernel base classes that already contain the correct rails.
+The primary enforcement mechanism is that “normal code” is written by inheriting core base classes that already contain the correct rails.
 
 2.1 Primary Adapter Enforcement: BaseUseCase and BasePrimaryAdapter
 
@@ -80,7 +80,7 @@ Required properties enforced by inheritance:
 	•	Provenance history is always recorded.
 
 Locked-in behaviors:
-	•	Policy holds a PolicyToken internally (kernel-created).
+	•	Policy holds a PolicyToken internally (core-created).
 	•	Policy executes imperative logic, then applies evolutions with attribution.
 	•	BaseValueObject validates invariants on construct and evolve.
 	•	BaseValueObject appends provenance history on every evolution.
@@ -137,7 +137,7 @@ Bypass cost:
 
 3.1 Privilege types
 
-The kernel defines distinct context types:
+The core defines distinct context types:
 	•	ExternalCtx
 	•	InternalCtx
 	•	CommandCtx
@@ -175,7 +175,7 @@ Runtime guards are called at privileged boundaries:
 	•	requireSystem(ctx) and requireRawQuery(ctx) at admin persistence
 
 Failure mode:
-	•	throw an explicit kernel error type (BoundaryViolationError, MissingCapabilityError, UnauthorizedContextError)
+	•	throw an explicit core error type (BoundaryViolationError, MissingCapabilityError, UnauthorizedContextError)
 
 ⸻
 
@@ -359,7 +359,7 @@ This section ties the doc set together mechanically.
 	•	RepositorySignatureCheck: prevents new persistence escape hatches
 
 Minimum operational rule:
-	•	If a new kernel concept is introduced, it must be added to 10 before merging.
+	•	If a new core concept is introduced, it must be added to 10 before merging.
 
 ⸻
 
