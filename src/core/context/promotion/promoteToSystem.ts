@@ -2,7 +2,7 @@ import { InternalCtx } from '../InternalCtx';
 import { SystemCtx } from '../SystemCtx';
 import { TrustLevel } from '../BaseCtx';
 import { CapabilityBag } from '../CapabilityBag';
-import { CommitCap } from '../capabilities/CommitCap';
+import { CommitCap, mintCommitCap } from '../capabilities/CommitCap';
 import { RawQueryCap } from '../capabilities/RawQueryCap';
 import { AdminCap } from '../capabilities/AdminCap';
 
@@ -14,7 +14,7 @@ export function promoteToSystem(ctx: InternalCtx): SystemCtx {
         traceId: ctx.traceId,
         trustLevel: TrustLevel.System,
         capabilities: new CapabilityBag([
-            CommitCap.createInternal(),
+            mintCommitCap(),
             RawQueryCap.createInternal(),
             AdminCap.createInternal()
         ]),
