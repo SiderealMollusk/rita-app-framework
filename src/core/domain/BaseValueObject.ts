@@ -70,8 +70,16 @@ export abstract class BaseValueObject<TData> {
             ]
         };
 
+        return this.createInstance(newData, newProvenance, this._rev + 1);
+    }
+
+    /**
+     * Internal factory for creating new instances during evolution.
+     * Must be overridden by child classes with different constructor signatures (e.g. BaseEntity).
+     */
+    protected createInstance(data: TData, provenance: Provenance<TData>, rev: number): this {
         // @ts-expect-error - constructor of child class
-        return new this.constructor(newData, newProvenance, this._rev + 1);
+        return new this.constructor(data, provenance, rev);
     }
 
     /**

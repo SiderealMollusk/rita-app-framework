@@ -1,5 +1,5 @@
-import { SimulatedClock, SimulatedRandom, InMemoryEventBus } from '../../core';
-import { Schema as z } from '../../core/validation/Schema';
+import { SimulatedClock, SimulatedRandom, InMemoryEventBus, Logger } from '../../core';
+import { Schema as z, SchemaType } from '../../core/validation/Schema';
 
 export const StepSchema = z.discriminatedUnion('kind', [
     z.object({
@@ -20,7 +20,7 @@ export const StepSchema = z.discriminatedUnion('kind', [
     })
 ]);
 
-export type Step = z.infer<typeof StepSchema>;
+export type Step = SchemaType<typeof StepSchema>;
 
 export const ScenarioSchema = z.object({
     name: z.string(),
@@ -28,7 +28,7 @@ export const ScenarioSchema = z.object({
     steps: z.array(StepSchema)
 });
 
-export type Scenario = z.infer<typeof ScenarioSchema>;
+export type Scenario = SchemaType<typeof ScenarioSchema>;
 
 export interface SimulationWorld {
     clock: SimulatedClock;
@@ -46,6 +46,7 @@ export class ScenarioRunner {
         for (const step of scenario.steps) {
             switch (step.kind) {
                 case 'wait':
+                    Logger.info(`[Sim: Wait]`, { ms: step.ms });
                     await this.world.clock.advance(step.ms);
                     break;
                 case 'act':

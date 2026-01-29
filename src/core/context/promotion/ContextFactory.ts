@@ -8,6 +8,7 @@ import { SystemCtx } from '../SystemCtx';
 import { promoteExternalToInternal } from './promoteExternalToInternal';
 import { promoteInternalToCommand } from './promoteInternalToCommand';
 import { promoteToSystem } from './promoteToSystem';
+import { UnitOfWork } from '../../ports/UnitOfWorkPort';
 
 export { promoteExternalToInternal } from './promoteExternalToInternal';
 export { promoteInternalToCommand } from './promoteInternalToCommand';
@@ -35,8 +36,8 @@ export class ContextFactory {
     /**
      * Promotes an internal context to a command context with write authority.
      */
-    static promoteToCommand(ctx: InternalCtx): CommandCtx {
-        return promoteInternalToCommand(ctx);
+    static promoteToCommand(ctx: InternalCtx, uow?: UnitOfWork): CommandCtx {
+        return promoteInternalToCommand(ctx, uow);
     }
 
     /**

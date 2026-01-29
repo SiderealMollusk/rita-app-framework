@@ -14,7 +14,7 @@ export interface Evolution<T extends BaseValueObject<any>> {
  */
 export abstract class DecisionPolicy<TTarget extends BaseValueObject<any>, TContext = void> {
     protected readonly name: string;
-    private readonly token: PolicyToken;
+    protected readonly token: PolicyToken;
 
     constructor() {
         this.name = this.constructor.name;
@@ -37,16 +37,19 @@ export abstract class DecisionPolicy<TTarget extends BaseValueObject<any>, TCont
             let current = target;
 
             for (const evo of evolutions) {
-                Logger.info(`[Policy: ${this.name}] Applying evolution: ${evo.note}`, {
-                    traceId: ctx.traceId,
-                    changes: evo.changes
-                });
-
                 current = current._evolve(
                     evo.changes,
                     `[Policy: ${this.name}] ${evo.note}`,
                     this.token
                 );
+
+                Logger.info(`[Evolution] ${evo.note}`, {
+                    traceId: ctx.traceId,
+                    component: this.name,
+                    evolution: evo.changes,
+                    snapshot: current._data,
+                    reason: evo.note
+                });
             }
 
             span.end();

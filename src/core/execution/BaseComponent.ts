@@ -24,15 +24,17 @@ export abstract class BaseComponent<TIn, TOut> {
         const span = Tracer.startSpan(`[Component] ${this.name}`, ctx);
 
         try {
-            Logger.info(`[Component: ${this.name}] Starting execution`, { traceId: ctx.traceId });
+            Logger.info(`[Component: Start]`, { traceId: ctx.traceId, component: this.name });
             const result = await this._run(ctx, input);
-            Logger.info(`[Component: ${this.name}] Completed execution`, { traceId: ctx.traceId });
+            Logger.info(`[Component: End]`, { traceId: ctx.traceId, component: this.name });
             span.end();
             return result;
         } catch (err: any) {
-            Logger.error(`[Component: ${this.name}] Failed execution`, {
+            Logger.error(`[Component: Error]`, {
                 traceId: ctx.traceId,
-                error: err.message
+                component: this.name,
+                error: err.message,
+                stack: err.stack
             });
             span.recordException(err);
             span.end();
