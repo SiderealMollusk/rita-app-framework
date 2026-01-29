@@ -1,4 +1,4 @@
-import { RitaClock } from '../Clock';
+import { SystemClock } from '../Clock';
 
 
 
@@ -25,7 +25,7 @@ export class Logger {
         if (level < Logger.level) return;
 
         const entry = {
-            timestamp: RitaClock.now().toISOString(),
+            timestamp: SystemClock.now().toISOString(),
             level: LogLevel[level], // String representation
             message,
             ...payload

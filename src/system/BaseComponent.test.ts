@@ -1,16 +1,16 @@
 import { BaseComponent } from './BaseComponent';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
-import { RitaCtx } from './RitaCtx';
+import { SystemCtx } from './SystemCtx';
 
 // Mocks
 jest.mock('./telemetry/Logger');
 jest.mock('./telemetry/Tracer');
 
-const mockCtx: RitaCtx = { traceId: 'test-trace-id' };
+const mockCtx: SystemCtx = { traceId: 'test-trace-id' };
 
 class TestComponent extends BaseComponent<{ value: string }, { result: string }> {
-    protected async _run(ctx: RitaCtx, input: { value: string }): Promise<{ result: string }> {
+    protected async _run(ctx: SystemCtx, input: { value: string }): Promise<{ result: string }> {
         if (input.value === 'crash') {
             throw new Error('Boom');
         }
@@ -104,7 +104,7 @@ import { BaseQuery } from './cqrs/BaseQuery';
 
 
 class TestCommand extends BaseCommand<void, void> {
-    protected async _run(ctx: RitaCtx, _input: void): Promise<void> {
+    protected async _run(ctx: SystemCtx, _input: void): Promise<void> {
         await this.commit(ctx, async (_scope) => {
 
             // Write something
@@ -113,14 +113,14 @@ class TestCommand extends BaseCommand<void, void> {
 }
 
 class TestQuery extends BaseQuery<{ input: string }, string> {
-    protected async executeQueryParams(ctx: RitaCtx, params: { input: string }): Promise<string> {
+    protected async executeQueryParams(ctx: SystemCtx, params: { input: string }): Promise<string> {
         return `result: ${params.input}`;
     }
 }
 
 
 describe('CQRS Enforcement', () => {
-    let mockCtx: RitaCtx;
+    let mockCtx: SystemCtx;
 
     beforeEach(() => {
         mockCtx = { traceId: 'test-trace' };
@@ -141,22 +141,22 @@ describe('CQRS Enforcement', () => {
         expect(commitSpy).toHaveBeenCalled();
     });
 
-    it('should execute without commit capability', async () => {
+    it('should throw AgentGuidanceError if Query has commit capability', async () => {
         const query = new TestQuery();
 
-        // Normal case (no commit)
+        // Normal case (no commit) - Should Succeed
         await expect(query.execute({ traceId: 't1' }, { input: 'test' })).resolves.toBe('result: test');
 
-        // Violation case (commit provided)
+        // Violation case (commit provided) - Should Fail Safely
         const ctxWithCommit = {
             traceId: 't2',
             commit: async () => { }
         };
 
-        // Currently BaseQuery logic is just a check, it doesn't throw yet
-        // If we uncommented the throw, it would fail.
-        // But for coverage of the 'if (ctx.commit)' check, we must call it.
-        // Assuming we decide to ALLOW it but want to cover the branch:
-        await expect(query.execute(ctxWithCommit, { input: 'test' })).resolves.toBe('result: test');
+        // Enforced Safety Check
+        await expect(query.execute(ctxWithCommit, { input: 'test' }))
+            .rejects
+            .toThrow("Query Safety Violation");
     });
+
 });

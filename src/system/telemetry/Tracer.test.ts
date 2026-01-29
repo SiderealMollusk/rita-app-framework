@@ -1,6 +1,6 @@
 import { Tracer, Span } from './Tracer';
 import { Logger } from './Logger';
-import { RitaClock } from '../Clock';
+import { SystemClock } from '../Clock';
 
 // Mock the Logger to avoid polluting console and to verify Tracer calls it
 jest.mock('./Logger');
@@ -41,8 +41,8 @@ describe('Tracer', () => {
     it('should log duration when ending a span', () => {
         const span = Tracer.startSpan('duration-test');
 
-        const start = RitaClock.now().getTime();
-        while (RitaClock.now().getTime() - start < 2) {
+        const start = SystemClock.now().getTime();
+        while (SystemClock.now().getTime() - start < 2) {
             // Busy wait
         }
 

@@ -1,7 +1,7 @@
 import { BaseValueObject } from './BaseValueObject';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
-import { RitaCtx } from './RitaCtx';
+import { SystemCtx } from './SystemCtx';
 
 /**
  * The Key to the Kingdom.
@@ -67,7 +67,7 @@ export abstract class DecisionPolicy<TTarget extends BaseValueObject<any>, TCont
      */
     protected abstract decide(target: TTarget, context: TContext): Evolution<TTarget>[];
 
-    public execute(ctx: RitaCtx, target: TTarget, context: TContext): TTarget {
+    public execute(ctx: SystemCtx, target: TTarget, context: TContext): TTarget {
         const span = Tracer.startSpan(this.name, ctx);
 
         try {

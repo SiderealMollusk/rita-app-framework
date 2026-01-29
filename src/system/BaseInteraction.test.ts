@@ -2,7 +2,7 @@ import { CommandInteraction } from './BaseInteraction';
 import { BaseComponent } from './BaseComponent';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
-import { RitaCtx } from './RitaCtx';
+import { SystemCtx } from './SystemCtx';
 
 // Mocks
 jest.mock('./telemetry/Logger');
@@ -10,7 +10,7 @@ jest.mock('./telemetry/Tracer');
 
 // Mock Use Case
 class TestUseCase extends BaseComponent<string, string> {
-    protected async _run(ctx: RitaCtx, input: string): Promise<string> {
+    protected async _run(ctx: SystemCtx, input: string): Promise<string> {
         if (input === 'fail') throw new Error('UseCase Boom');
         return `Prepared: ${input}`;
     }

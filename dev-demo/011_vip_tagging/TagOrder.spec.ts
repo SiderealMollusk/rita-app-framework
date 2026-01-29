@@ -2,7 +2,7 @@ import { TagOrder } from './TagOrder';
 import { UserGateway } from './UserGateway';
 import { OrderRepository } from './OrderRepository';
 import { PriorityPolicy } from './PriorityPolicy';
-import { RitaCtx } from '../../src/system/RitaCtx';
+import { SystemCtx } from '../../src/system/SystemCtx';
 import { InMemoryCommitScope } from '../../src/system/persistence/InMemoryCommitScope';
 
 // Mocks
@@ -21,7 +21,7 @@ jest.mock('../../src/system/telemetry/Tracer', () => ({
 jest.mock('../../src/system/telemetry/Logger');
 
 describe('TagOrder (CQRS)', () => {
-    let mockCtx: RitaCtx;
+    let mockCtx: SystemCtx;
     let userGateway: jest.Mocked<UserGateway>;
     let orderRepo: jest.Mocked<OrderRepository>;
     let policy: jest.Mocked<PriorityPolicy>;

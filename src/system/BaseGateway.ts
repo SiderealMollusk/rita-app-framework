@@ -1,6 +1,6 @@
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
-import { RitaCtx } from './RitaCtx';
+import { SystemCtx } from './SystemCtx';
 
 /**
  * The Outbound Boundary (Adapter/Repository/Client).
@@ -26,7 +26,7 @@ export abstract class BaseGateway {
      * @param operationName Name of the external operation (e.g. "dynamo.putItem")
      * @param fn The async function performing the side effect
      */
-    protected async safeExecute<T>(ctx: RitaCtx, operationName: string, fn: () => Promise<T>): Promise<T> {
+    protected async safeExecute<T>(ctx: SystemCtx, operationName: string, fn: () => Promise<T>): Promise<T> {
         const span = Tracer.startSpan(`[Gateway] ${this.name}:${operationName}`, ctx);
 
         try {

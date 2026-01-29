@@ -2,13 +2,13 @@ import { DecisionPolicy, Evolution } from './DecisionPolicy';
 import { BaseValueObject } from './BaseValueObject';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
-import { RitaCtx } from './RitaCtx';
+import { SystemCtx } from './SystemCtx';
 
 // Mock Logger and Tracer
 jest.mock('./telemetry/Logger');
 jest.mock('./telemetry/Tracer');
 
-const mockCtx: RitaCtx = { traceId: 'test-trace-id' };
+const mockCtx: SystemCtx = { traceId: 'test-trace-id' };
 
 class TestEntity extends BaseValueObject<{ count: number; tag: string }> {
     protected validate() { }

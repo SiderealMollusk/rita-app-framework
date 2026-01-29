@@ -2,7 +2,7 @@ import { BaseComponent } from '../../src/system/BaseComponent';
 import { Order } from './Order';
 import { PlaceOrderPolicy } from './PlaceOrderPolicy';
 import { OrderRepository } from './OrderRepository';
-import { RitaCtx } from '../../src/system/RitaCtx';
+import { SystemCtx } from '../../src/system/SystemCtx';
 
 export type PlaceOrderInput = {
     id: string;
@@ -19,7 +19,7 @@ export class PlaceOrder extends BaseComponent<PlaceOrderInput, Order> {
         super();
     }
 
-    protected async _run(ctx: RitaCtx, input: PlaceOrderInput): Promise<Order> {
+    protected async _run(ctx: SystemCtx, input: PlaceOrderInput): Promise<Order> {
         // 1. Rehydrate / Factory
         if (input.amount < 0) throw new Error("Amount must be positive");
 

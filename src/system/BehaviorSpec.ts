@@ -30,7 +30,12 @@ export class BehaviorSpec {
         test(`    GIVEN ${text}`, fn as any);
     }
 
-    // "When" and "Then" usually mapped to individual steps or assertions
-    // in a real BDD framework, but here we map them to jest tests for simplicity
-    // or just use them as comments/structure helpers.
+    static when(text: string, fn: () => void | Promise<void>) {
+        test(`    WHEN ${text}`, fn as any);
+    }
+
+    static then(text: string, fn: () => void | Promise<void>) {
+        test(`    THEN ${text}`, fn as any);
+    }
 }
+

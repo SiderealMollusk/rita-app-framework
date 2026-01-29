@@ -1,6 +1,6 @@
 import { AgentGuidanceError } from './AgentGuidanceError';
 import { PolicyToken } from './DecisionPolicy';
-import { RitaClock } from './Clock';
+import { SystemClock } from './Clock';
 
 /**
  * Base Value Object.
@@ -32,7 +32,7 @@ export abstract class BaseValueObject<TData> {
 
         // If no provenance provided (new object), start the history.
         this._provenance = provenance || {
-            timestamp: RitaClock.now(),
+            timestamp: SystemClock.now(),
             by: 'Constructor',
             history: []
         };
@@ -77,12 +77,12 @@ export abstract class BaseValueObject<TData> {
 
             newData,
             {
-                timestamp: RitaClock.now(),
+                timestamp: SystemClock.now(),
                 by: 'Policy', // We know it's a policy because of the token
                 history: [
                     ...this._provenance.history,
                     {
-                        at: RitaClock.now(),
+                        at: SystemClock.now(),
                         reason: reason,
                         diff: changes
                     }

@@ -4,13 +4,13 @@ import { CustomerProfile } from './CustomerProfile';
 import { Order } from './Order';
 import { TagOrder } from './TagOrder';
 import { OrderRepository } from './OrderRepository';
-import { RitaCtx } from '../../src/system/RitaCtx';
+import { SystemCtx } from '../../src/system/SystemCtx';
 
 
 
 // --- UserGateway Tests ---
 describe('UserGateway', () => {
-    const mockCtx = { traceId: 'test' } as RitaCtx;
+    const mockCtx = { traceId: 'test' } as SystemCtx;
 
     it('should return a user mock by default', async () => {
         const gw = new UserGateway();
@@ -31,7 +31,7 @@ describe('UserGateway', () => {
 
 // --- PriorityPolicy Tests ---
 describe('PriorityPolicy', () => {
-    const mockCtx = { traceId: 'test' } as RitaCtx;
+    const mockCtx = { traceId: 'test' } as SystemCtx;
 
     it('should upgrade priority if user is GOLD', async () => {
         const policy = new PriorityPolicy();
@@ -102,7 +102,7 @@ describe('Order Entity (Validation)', () => {
 describe('UserGateway (Branches)', () => {
     it('should return PLAT for u_plat', async () => {
         const gw = new UserGateway();
-        const mockCtx = { traceId: 'test' } as RitaCtx;
+        const mockCtx = { traceId: 'test' } as SystemCtx;
         const user = await gw.getUser(mockCtx, 'u_plat');
         expect(user.tier).toBe('PLAT');
     });

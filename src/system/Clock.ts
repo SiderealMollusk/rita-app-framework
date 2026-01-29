@@ -22,11 +22,13 @@ export class FixedClock implements Clock {
     }
 }
 
+
+
 /**
  * Global Clock Accessor.
  * Use this instead of `new Date()`.
  */
-export class RitaClock {
+export class SystemClock {
     private static strategy: Clock = new RealClock();
 
     static now(): Date {

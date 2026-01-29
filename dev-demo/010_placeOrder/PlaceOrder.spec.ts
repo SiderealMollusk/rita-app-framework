@@ -1,6 +1,7 @@
 import { BehaviorSpec } from '../../src/system/BehaviorSpec';
-import { PlaceOrderController } from './PlaceOrderController';
+import { PlaceOrderController, PlaceOrderResponse } from './PlaceOrderController';
 import { OrderRepository } from './OrderRepository';
+import { PlaceOrderInput } from './PlaceOrder';
 
 
 // Mocks
@@ -19,23 +20,28 @@ BehaviorSpec.feature('Place Order', () => {
     });
 
     BehaviorSpec.scenario('Customer places a valid VIP order', () => {
-        BehaviorSpec.given('the order amount is > 1000', async () => {
-            const input = {
+        let input: PlaceOrderInput;
+        let result: PlaceOrderResponse;
+
+
+        BehaviorSpec.given('the order amount is > 1000', () => {
+            input = {
                 id: 'order-123',
                 amount: 1500,
                 customerId: 'cust-1'
             };
+        });
 
-            const result = await controller.run(input);
+        BehaviorSpec.when('the order is placed', async () => {
+            result = await controller.run(input);
+        });
 
-            // Expect successful result
+        BehaviorSpec.then('it should be marked as VIP', () => {
             expect(result.status).toBe('VIP');
             expect(result.id).toBe('order-123');
-
-            // Verify Gateway was called (Side Effect)
-            // (In a real test we'd mock the repo save method)
         });
     });
+
 
     BehaviorSpec.scenario('Customer places a valid small order', () => {
         BehaviorSpec.given('the order amount is < 1000', async () => {

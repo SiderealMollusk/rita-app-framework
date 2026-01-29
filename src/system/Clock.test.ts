@@ -1,15 +1,15 @@
 /* eslint-disable no-restricted-syntax */
-import { RitaClock, RealClock, FixedClock } from './Clock';
+import { SystemClock, RealClock, FixedClock } from './Clock';
 
 
-describe('RitaClock', () => {
+describe('SystemClock', () => {
     afterEach(() => {
-        RitaClock.reset();
+        SystemClock.reset();
     });
 
     it('should use RealClock by default', () => {
-        const now = RitaClock.now();
-        const ts = RitaClock.timestamp();
+        const now = SystemClock.now();
+        const ts = SystemClock.timestamp();
 
         expect(now).toBeInstanceOf(Date);
         expect(typeof ts).toBe('number');
@@ -20,19 +20,19 @@ describe('RitaClock', () => {
 
     it('should support Mocking (FixedClock)', () => {
         const fixedDate = new Date('2025-01-01T00:00:00Z');
-        RitaClock.mock(fixedDate);
+        SystemClock.mock(fixedDate);
 
-        expect(RitaClock.now().toISOString()).toBe(fixedDate.toISOString());
-        expect(RitaClock.timestamp()).toBe(fixedDate.getTime());
+        expect(SystemClock.now().toISOString()).toBe(fixedDate.toISOString());
+        expect(SystemClock.timestamp()).toBe(fixedDate.getTime());
     });
 
     it('should reset to RealClock', () => {
         const fixedDate = new Date('2000-01-01');
-        RitaClock.mock(fixedDate);
-        expect(RitaClock.now()).toEqual(fixedDate);
+        SystemClock.mock(fixedDate);
+        expect(SystemClock.now()).toEqual(fixedDate);
 
-        RitaClock.reset();
-        expect(RitaClock.timestamp()).toBeGreaterThan(fixedDate.getTime());
+        SystemClock.reset();
+        expect(SystemClock.timestamp()).toBeGreaterThan(fixedDate.getTime());
     });
 });
 

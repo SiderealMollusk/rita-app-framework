@@ -27,10 +27,11 @@ export class PlaceOrderController extends CommandInteraction<PlaceOrderInput, Pl
     }
 }
 
-type PlaceOrderResponse = {
+export type PlaceOrderResponse = {
     id: string;
     status: string;
     amount: number;
 };
+
 
 

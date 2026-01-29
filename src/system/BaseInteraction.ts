@@ -1,7 +1,7 @@
 import { BaseComponent } from './BaseComponent';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
-import { RitaCtx } from './RitaCtx';
+import { SystemCtx } from './SystemCtx';
 import { v4 as uuidv4 } from 'uuid';
 import { InMemoryCommitScope } from './persistence/InMemoryCommitScope'; // Default implementation
 
@@ -30,7 +30,7 @@ export abstract class BaseInteraction<TInput, TOutput> {
     ): Promise<UOut> {
         const traceId = uuidv4();
 
-        let ctx: RitaCtx = { traceId };
+        let ctx: SystemCtx = { traceId };
 
         if (isCommand) {
             // Attach Commit Capability

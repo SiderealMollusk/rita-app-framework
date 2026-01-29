@@ -1,6 +1,6 @@
 import { Logger, LogContext } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
-import { RitaCtx } from './RitaCtx';
+import { SystemCtx } from './SystemCtx';
 
 /**
  * Base Application Component (Use Case).
@@ -25,7 +25,7 @@ export abstract class BaseComponent<TInput, TOutput> {
      * The Public Entry Point.
      * Agents cannot override this (in spirit, though TS doesn't have 'final').
      */
-    public async execute(ctx: RitaCtx, input: TInput): Promise<TOutput> {
+    public async execute(ctx: SystemCtx, input: TInput): Promise<TOutput> {
         const span = Tracer.startSpan(this.name, ctx);
 
         // Add traceId to the Logger context for this execution
@@ -41,7 +41,7 @@ export abstract class BaseComponent<TInput, TOutput> {
 
         try {
             // Delegate execution to the implementation, propagating the trace context.
-            const childCtx: RitaCtx = { ...ctx, traceId: span.traceId };
+            const childCtx: SystemCtx = { ...ctx, traceId: span.traceId };
             const result = await this._run(childCtx, input);
 
             Logger.info(`[${this.name}] Completed`, executionContext);
@@ -66,7 +66,7 @@ export abstract class BaseComponent<TInput, TOutput> {
      * The internal execution logic.
      * Subclasses must implement this method to perform business logic.
      */
-    protected abstract _run(ctx: RitaCtx, input: TInput): Promise<TOutput>;
+    protected abstract _run(ctx: SystemCtx, input: TInput): Promise<TOutput>;
 
     /**
      * Optional hook to clean up input for logs (e.g. redact passwords).

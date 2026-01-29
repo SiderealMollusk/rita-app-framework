@@ -1,11 +1,11 @@
 import { BaseGateway } from '../../src/system/BaseGateway';
 import { CustomerProfile } from './CustomerProfile';
-import { RitaCtx } from '../../src/system/RitaCtx';
+import { SystemCtx } from '../../src/system/SystemCtx';
 
 export class UserGateway extends BaseGateway {
 
     // STUB: Simulate a network call to a User Service
-    public async getUser(ctx: RitaCtx, userId: string): Promise<CustomerProfile> {
+    public async getUser(ctx: SystemCtx, userId: string): Promise<CustomerProfile> {
         return this.safeExecute(ctx, 'getUser', async () => {
             // Simulate Latency
             await new Promise(r => setTimeout(r, 5));

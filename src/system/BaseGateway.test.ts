@@ -1,20 +1,20 @@
 import { BaseGateway } from './BaseGateway';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
-import { RitaCtx } from './RitaCtx';
+import { SystemCtx } from './SystemCtx';
 
 jest.mock('./telemetry/Logger');
 jest.mock('./telemetry/Tracer');
 
 class TestGateway extends BaseGateway {
-    public async fetchData(ctx: RitaCtx, shouldFail: boolean): Promise<string> {
+    public async fetchData(ctx: SystemCtx, shouldFail: boolean): Promise<string> {
         return this.safeExecute(ctx, 'fetchData', async () => {
             if (shouldFail) throw new Error('Network Error');
             return 'Success';
         });
     }
 
-    public async testSafeExecute<T>(ctx: RitaCtx, op: string, fn: () => Promise<T>): Promise<T> {
+    public async testSafeExecute<T>(ctx: SystemCtx, op: string, fn: () => Promise<T>): Promise<T> {
         return this.safeExecute(ctx, op, fn);
     }
 }
@@ -53,10 +53,9 @@ describe('BaseGateway', () => {
 
 
         expect(mockSpan.recordException).toHaveBeenCalled();
-
-        expect(mockSpan.end).toHaveBeenCalled();
         expect(mockSpan.end).toHaveBeenCalled();
     });
+
 
     it('should catch non-Error objects and record them safely', async () => {
         // Mock safeExecute logic if needed, or subclass modification.

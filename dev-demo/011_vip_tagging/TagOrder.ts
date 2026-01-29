@@ -3,7 +3,7 @@ import { Order } from './Order';
 import { UserGateway } from './UserGateway';
 import { OrderRepository } from './OrderRepository';
 import { PriorityPolicy } from './PriorityPolicy';
-import { RitaCtx } from '../../src/system/RitaCtx';
+import { SystemCtx } from '../../src/system/SystemCtx';
 
 type Input = {
     orderId: string;
@@ -21,7 +21,7 @@ export class TagOrder extends BaseCommand<Input, Order> {
         super();
     }
 
-    protected async _run(ctx: RitaCtx, input: Input): Promise<Order> {
+    protected async _run(ctx: SystemCtx, input: Input): Promise<Order> {
         // 1. Create Initial Order (Clean)
         let order = new Order({
             id: input.orderId,
