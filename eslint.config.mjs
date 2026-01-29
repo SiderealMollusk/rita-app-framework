@@ -10,7 +10,8 @@ export default tseslint.config(
     },
     {
         rules: {
-            "@typescript-eslint/no-explicit-any": "warn",
+            "@typescript-eslint/no-explicit-any": "error",
+
             "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
 
             // Enforce Clock Usage
@@ -71,5 +72,20 @@ export default tseslint.config(
         rules: {
             "no-restricted-syntax": "off"
         }
+    },
+    {
+        // Framework Base Classes need 'any' for generic defaulting
+        files: [
+            "src/system/BaseInteraction.ts",
+            "src/system/BaseComponent.ts",
+            "src/system/BaseGateway.ts",
+            "src/system/telemetry/Logger.ts",
+            "src/system/DecisionPolicy.ts",
+            "src/system/BehaviorSpec.ts"
+        ],
+        rules: {
+            "@typescript-eslint/no-explicit-any": "off"
+        }
     }
+
 );

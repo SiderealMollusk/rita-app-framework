@@ -8,14 +8,16 @@ export class OrderRepository extends BaseRepository<Order> {
     // In-Memory Log (Acting as DB)
     public readonly savedOrders: Order[] = [];
 
-    protected getId(entity: Order): string {
-        return entity._data.id;
+    protected getId(_entity: Order): string {
+        return _entity._data.id;
     }
 
-    protected getVersion(entity: Order): number | undefined {
+
+    protected getVersion(_entity: Order): number | undefined {
         // No optimistic concurrency in this simple demo yet
         return undefined;
     }
+
 
 
     protected async _write(scope: CommitScope, id: string, data: Order, _expectedVersion?: number): Promise<void> {

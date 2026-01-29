@@ -23,7 +23,9 @@ export class TagOrderController extends CommandInteraction<RequestDTO, TagOrderR
         this.useCase = new TagOrder(userGateway, orderRepo);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public async run(input: RequestDTO): Promise<any> {
+
         // Validation (Imperative Shell)
         if (!input.userId) throw new Error("Missing userId");
 
@@ -43,7 +45,9 @@ export class TagOrderController extends CommandInteraction<RequestDTO, TagOrderR
 type TagOrderResponse = {
     orderId: string;
     finalPriority: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     note: any[]; // It's a complex history object, keeping as any[] or unknown[] for now is fine, or define HistoryItem type
 };
+
 
 

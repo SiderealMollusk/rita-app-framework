@@ -29,14 +29,18 @@ class TestController extends CommandInteraction<string, string> {
 
 describe('BaseInteraction', () => {
     let controller: TestController;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let mockSpan: any;
+
 
     beforeEach(() => {
         jest.clearAllMocks();
         controller = new TestController();
-
         mockSpan = { traceId: 'interaction-trace', end: jest.fn(), recordException: jest.fn() };
+
+
         (Tracer.startSpan as jest.Mock).mockReturnValue(mockSpan);
+
     });
 
     it('should delegate to Use Case and trace execution', async () => {
@@ -56,5 +60,7 @@ describe('BaseInteraction', () => {
             expect.stringContaining('[Interaction] TestController failed'),
             expect.any(Object)
         );
+
+
     });
 });

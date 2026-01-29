@@ -33,13 +33,15 @@ describe('BaseEntity', () => {
 
     it('should prevent mutation of nested objects if frozen', () => {
         const e = new TestEntity({ id: '1', name: 'A' });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect(() => (e._data as any).someNewProp = 'bad').toThrow();
     });
-
 
     it('should return false for non-entity comparison', () => {
         const e1 = new TestEntity({ id: '123', name: 'A' });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect(e1.equals({ id: '123' } as any)).toBe(false);
     });
+
 });

@@ -6,9 +6,11 @@ class Hacker {
     static mintToken() {
         // Now this fails to compile (Property 'create' is private or we lack the symbol)
         // For test purposes, we try to be clever:
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return (PolicyToken as any).create(Symbol('MyFakeSecret'));
     }
 }
+
 
 class TestVO extends BaseValueObject<{ val: number }> {
     protected validate(_data: { val: number }) { }
@@ -33,7 +35,10 @@ describe('Security (TDD)', () => {
     it('should NOT allow unauthorized evolution with a forged object', () => {
         const vo = new TestVO({ val: 0 });
         // Even if we mock the shape...
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const fakeToken = { _secret: Symbol('Fake') } as any as PolicyToken;
+
+
 
         expect(() => {
             vo._evolve({ val: 1 }, "Hacking", fakeToken);

@@ -1,5 +1,6 @@
 import { TagOrderController } from './TagOrderController';
-import { TagOrder } from './TagOrder';
+// import { TagOrder } from './TagOrder'; 
+
 
 // Mock Use Case
 jest.mock('./TagOrder');
@@ -18,7 +19,9 @@ describe('TagOrderController', () => {
         const controller = new TagOrderController();
 
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const input = { orderId: '123' } as any; // missing userId
+
 
         await expect(controller.run(input)).rejects.toThrow('Missing userId');
     });
@@ -42,8 +45,10 @@ describe('TagOrderController', () => {
         // Let's mock the internal useCase.execute call? NO, executeUseCase logic is in Base.
 
         // Valid Approach: Mock `executeUseCase` on the controller instance.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const executeSpy = jest.spyOn(controller as any, 'executeUseCase')
             .mockResolvedValue(mockOrder);
+
 
         const input = { orderId: '123', userId: 'user-456', amount: 5000 };
         const result = await controller.run(input);

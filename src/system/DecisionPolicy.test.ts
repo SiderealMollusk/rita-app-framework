@@ -46,7 +46,9 @@ class ErrorPolicy extends DecisionPolicy<TestEntity, void> {
 }
 
 describe('DecisionPolicy (Imperative)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let mockSpan: any;
+
 
     beforeEach(() => {
         jest.clearAllMocks();

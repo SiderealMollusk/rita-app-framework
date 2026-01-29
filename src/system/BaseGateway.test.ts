@@ -17,13 +17,18 @@ class TestGateway extends BaseGateway {
 
 describe('BaseGateway', () => {
     let gateway: TestGateway;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let mockSpan: any;
+
 
     beforeEach(() => {
         jest.clearAllMocks();
         gateway = new TestGateway();
         mockSpan = { traceId: 'gateway-trace', end: jest.fn(), recordException: jest.fn() };
+
+
         (Tracer.startSpan as jest.Mock).mockReturnValue(mockSpan);
+
     });
 
     it('should execute successfully and trace', async () => {
@@ -38,8 +43,12 @@ describe('BaseGateway', () => {
     it('should catch errors and record exceptions', async () => {
         await expect(gateway.fetchData({ traceId: 'test-trace' }, true)).rejects.toThrow('Network Error');
 
+
         expect(Logger.error).toHaveBeenCalledWith(expect.stringContaining('FAILED'), expect.any(Object));
+
+
         expect(mockSpan.recordException).toHaveBeenCalled();
+
         expect(mockSpan.end).toHaveBeenCalled();
     });
 });

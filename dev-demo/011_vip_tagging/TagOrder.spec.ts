@@ -44,9 +44,10 @@ describe('TagOrder (CQRS)', () => {
 
         // Setup successful mocks
         userGateway.getUser.mockResolvedValue({ userId: 'u1', tier: 'STD' });
-        policy.execute.mockImplementation((ctx, order, profile) => order); // Identity
+        policy.execute.mockImplementation((_ctx, order, _profile) => order); // Identity
 
         command = new TagOrder(userGateway, orderRepo, policy);
+
     });
 
     it('should Execute, Commit, and Persist', async () => {
