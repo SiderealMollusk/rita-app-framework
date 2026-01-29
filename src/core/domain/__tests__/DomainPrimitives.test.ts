@@ -1,4 +1,4 @@
-import { BaseValueObject } from '../BaseValueObject';
+import { BaseValueObject, Provenance } from '../BaseValueObject';
 import { BaseEntity } from '../BaseEntity';
 import { DecisionPolicy, Evolution } from '../DecisionPolicy';
 import { RitaClock } from '../RitaClock';
@@ -14,6 +14,11 @@ interface MockData {
 class MockVO extends BaseValueObject<MockData> {
     protected validate(data: MockData): void {
         if (data.age < 0) throw new Error('Age must be positive');
+    }
+
+    protected _instantiate(data: MockData, provenance: Provenance<MockData>, rev: number): this {
+        // @ts-expect-error - constructor is protected/private in real implementation but here safe
+        return new this.constructor(data, provenance, rev);
     }
 }
 

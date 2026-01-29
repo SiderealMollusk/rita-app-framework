@@ -1,5 +1,6 @@
 import { SimulatedClock, SimulatedRandom, InMemoryEventBus } from '../../core';
-import { Schema as z } from '../../core/validation/Schema';
+import { Schema as z, SchemaType } from '../../core/validation/Schema';
+import * as util from 'util';
 
 export const StepSchema = z.discriminatedUnion('kind', [
     z.object({
@@ -20,7 +21,7 @@ export const StepSchema = z.discriminatedUnion('kind', [
     })
 ]);
 
-export type Step = z.infer<typeof StepSchema>;
+export type Step = SchemaType<typeof StepSchema>;
 
 export const ScenarioSchema = z.object({
     name: z.string(),
@@ -28,7 +29,7 @@ export const ScenarioSchema = z.object({
     steps: z.array(StepSchema)
 });
 
-export type Scenario = z.infer<typeof ScenarioSchema>;
+export type Scenario = SchemaType<typeof ScenarioSchema>;
 
 export interface SimulationWorld {
     clock: SimulatedClock;
@@ -40,7 +41,7 @@ export interface SimulationWorld {
 }
 
 export class ScenarioRunner {
-    constructor(private world: SimulationWorld) {}
+    constructor(private world: SimulationWorld) { }
 
     async play(scenario: Scenario): Promise<void> {
         for (const step of scenario.steps) {
@@ -54,7 +55,7 @@ export class ScenarioRunner {
                 case 'assert':
                     const result = await this.world.query(step.query, step.params);
                     // Implementation note: use deep equality check
-                    if (JSON.stringify(result) !== JSON.stringify(step.expect)) {
+                    if (!util.isDeepStrictEqual(result, step.expect)) {
                         throw new Error(`Assertion failed for ${step.query}. Expected ${JSON.stringify(step.expect)}, got ${JSON.stringify(result)}`);
                     }
                     break;

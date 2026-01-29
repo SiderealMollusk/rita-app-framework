@@ -4,6 +4,7 @@ import { BaseCtx } from '../context/BaseCtx';
 import { InternalCtx } from '../context/InternalCtx';
 import { CommandCtx } from '../context/CommandCtx';
 import { NotFoundError } from '../errors/NotFoundError';
+import { CommitCap } from '../context/capabilities/CommitCap';
 
 /**
  * Generic In-Memory Repository for testing and simulation.
@@ -38,6 +39,8 @@ export class InMemoryRepository<T extends BaseEntity<any, any>> extends BaseRepo
 
     public async delete(ctx: CommandCtx, id: string): Promise<void> {
         return this.safeExecute(ctx, 'delete', async () => {
+            // Require CommitCap for durable deletions
+            ctx.capabilities.require(CommitCap);
             this.data.delete(id);
         });
     }

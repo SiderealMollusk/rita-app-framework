@@ -11,6 +11,11 @@ export abstract class BaseEntity<TData, TId = string> extends BaseValueObject<TD
         this.id = id;
     }
 
+    protected _instantiate(data: TData, provenance: Provenance<TData>, rev: number): this {
+        // @ts-expect-error - constructor of child class
+        return new this.constructor(this.id, data, provenance, rev);
+    }
+
     /**
      * Identity-based equality check.
      */

@@ -41,6 +41,11 @@ export abstract class BaseValueObject<TData> {
     protected abstract validate(data: TData): void;
 
     /**
+     * Creation hook for subclasses.
+     */
+    protected abstract _instantiate(data: TData, provenance: Provenance<TData>, rev: number): this;
+
+    /**
      * The ONLY way to evolve state. Requires a PolicyToken.
      */
     public _evolve(changes: Partial<TData>, reason: string, token: PolicyToken): this {
@@ -70,8 +75,7 @@ export abstract class BaseValueObject<TData> {
             ]
         };
 
-        // @ts-expect-error - constructor of child class
-        return new this.constructor(newData, newProvenance, this._rev + 1);
+        return this._instantiate(newData, newProvenance, this._rev + 1);
     }
 
     /**
