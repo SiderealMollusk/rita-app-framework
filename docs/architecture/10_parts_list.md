@@ -29,6 +29,7 @@ If you add a new core concept, add it to the table before writing code.
 | Span | Type | Core / Observability | Represents a traced execution unit |
 | Logger | Service | Core / Observability | Structured logging with context |
 | BaseValueObject | Abstract Class | Core / Domain | Immutable domain state with provenance |
+| BaseEntity | Abstract Class | Core / Domain | Immutable domain state with Identity |
 | Policy | Abstract Class | Core / Domain | Pure decision logic that proposes evolutions |
 | Evolution | Type | Core / Domain | Data-only state change request |
 | UseCase | Abstract Class | Core / Application | Orchestrates domain logic and side effects |
@@ -36,6 +37,8 @@ If you add a new core concept, add it to the table before writing code.
 | PrimaryPort | Interface | Core / Ports | Inbound contract into application logic |
 | SecondaryPort | Interface | Core / Ports | Outbound contract to infrastructure |
 | ClockPort | Interface | Core / Ports | Time source abstraction |
+| UnitOfWorkPort | Interface | Core / Ports | Transaction/Atomicity contract |
+| UnitOfWork | Class | Core / Adapters | Transaction coordinator implementation |
 | BaseSecondaryAdapter | Abstract Class | Core / Adapters | External system adapter (API, queue, LLM, etc.) |
 | BaseRepository | Abstract Class | Core / Persistence | Parameterized persistence adapter |
 | AdminRepository | Abstract Class | Core / Persistence | System-only raw DB access |

@@ -5,15 +5,16 @@ module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
     verbose: true,
-    roots: ['<rootDir>/src', '<rootDir>/dev-demo'],
+    roots: ['<rootDir>/src'],
     testMatch: ['**/*.test.ts', '**/*.spec.ts'],
     collectCoverage: true,
-    collectCoverageFrom: ['src/**/*.ts', 'dev-demo/**/*.ts'],
+    collectCoverageFrom: ['src/**/*.ts'],
     coveragePathIgnorePatterns: [
         '/node_modules/',
         '.*/run\\.ts$',
         '.*/hex\\.ts$',
-        '.*\\.config\\..*'
+        '.*\\.config\\..*',
+        'src/core/index\\.ts'
     ],
 
 

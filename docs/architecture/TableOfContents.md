@@ -29,7 +29,7 @@ This is where architecture becomes enforceable.
 
 ⸻
 
-30_kernel_api.md
+30_core_api.md
 
 What this is: The promise.
 Purpose: The stable surface of Ṛta's Core — what app code can rely on across versions.
