@@ -1,7 +1,11 @@
 import { BaseComponent } from './BaseComponent';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
+
 import { SystemCtx } from './SystemCtx';
+import { Schema } from './Schema';
+import { AgentGuidanceError } from './AgentGuidanceError';
+
 
 // Mocks
 jest.mock('./telemetry/Logger');
@@ -96,7 +100,37 @@ describe('BaseComponent', () => {
     });
 
 
+    it('should validate inputs using Zod Schema if provided', async () => {
+        class ValidatedComponent extends BaseComponent<{ age: number }, void> {
+            protected schema = Schema.object({
+                age: Schema.number().min(18)
+            });
+            protected async _run(_ctx: SystemCtx, _input: { age: number }): Promise<void> { }
+        }
+
+        const component = new ValidatedComponent();
+
+        // Valid Input
+        await expect(component.execute(mockCtx, { age: 25 })).resolves.toBeUndefined();
+
+        // Invalid Input (should throw AgentGuidanceError via the catch block)
+        await expect(component.execute(mockCtx, { age: 10 }))
+            .rejects
+            .toThrow("Input Validation Failed");
+
+        // Verify that the inner error details are logged or part of the message
+        try {
+            await component.execute(mockCtx, { age: 10 });
+        } catch (err: unknown) {
+            expect(err).toBeInstanceOf(AgentGuidanceError);
+            const guidanceError = err as AgentGuidanceError;
+            expect(guidanceError.message).toContain("Input Validation Failed");
+            expect(guidanceError.fix).toContain("Input does not match the required Schema");
+        }
+    });
+
 });
+
 
 import { BaseCommand } from './cqrs/BaseCommand';
 import { BaseQuery } from './cqrs/BaseQuery';

@@ -1,4 +1,7 @@
 import { Logger, LogContext } from './telemetry/Logger';
+import { ZodSchema } from './Schema';
+import { AgentGuidanceError } from './AgentGuidanceError';
+
 import { Tracer } from './telemetry/Tracer';
 import { SystemCtx } from './SystemCtx';
 
@@ -17,9 +20,13 @@ import { SystemCtx } from './SystemCtx';
 export abstract class BaseComponent<TInput, TOutput> {
     protected readonly name: string;
 
+    // Optional Runtime Schema Validation "Lubricate & Hard Pass"
+    protected schema?: ZodSchema;
+
     constructor() {
         this.name = this.constructor.name;
     }
+
 
     /**
      * The Public Entry Point.
@@ -34,12 +41,24 @@ export abstract class BaseComponent<TInput, TOutput> {
             component: this.name
         };
 
-        Logger.info(`[${this.name}] Started`, {
-            ...executionContext,
-            input: this.sanitize(input) // Prevent massive logs if input is huge
-        });
-
         try {
+            // 0. Runtime Schema Validation ("Lubricate & Hard Pass")
+            if (this.schema) {
+                try {
+                    this.schema.parse(input);
+                } catch (zodError: any) {
+                    throw new AgentGuidanceError(
+                        "Input Validation Failed",
+                        `Input does not match the required Schema: ${JSON.stringify(zodError.errors)}. Ensure you are passing the correct data structure.`
+                    );
+                }
+            }
+
+            Logger.info(`[${this.name}] Started`, {
+                ...executionContext,
+                input: this.sanitize(input) // Prevent massive logs if input is huge
+            });
+
             // Delegate execution to the implementation, propagating the trace context.
             const childCtx: SystemCtx = { ...ctx, traceId: span.traceId };
             const result = await this._run(childCtx, input);
