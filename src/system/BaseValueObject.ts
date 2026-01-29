@@ -3,9 +3,10 @@ import { PolicyToken } from './DecisionPolicy';
 import { RitaClock } from './Clock';
 
 /**
- * The "Black Box" Recorder.
- * Every Value Object in the system inherits from this.
- * It enforces that you can't change state without leaving a trail.
+ * Base Value Object.
+ *
+ * Enforces immutability and state change attribution (provenance).
+ * Every state change is recorded with a reason and linked to a policy.
  */
 export abstract class BaseValueObject<TData> {
     public readonly _data: TData;
@@ -94,7 +95,5 @@ export abstract class BaseValueObject<TData> {
 
 
 // TODO(P0-SAFETY): Change _evolve visibility from public to protected (or at least clearly “framework-only”). If it must remain public, enforce an unforgeable token (see DecisionPolicy TODO) so external callers cannot evolve even with “any”.
-
-// TODO(P1): Add a simple revision number (rev) into provenance or data to make “save only changed” and optimistic concurrency easy later. Increment rev on evolve. Keep history as-is.
 
 // TODO(P1): Decide whether provenance history should remain unbounded; add a note about potential truncation/compaction for long-lived objects (optional; punt).

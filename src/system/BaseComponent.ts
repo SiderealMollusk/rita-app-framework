@@ -3,9 +3,9 @@ import { Tracer } from './telemetry/Tracer';
 import { RitaCtx } from './RitaCtx';
 
 /**
- * The "Invisible Railings" Logic Wrapper.
+ * Base Application Component (Use Case).
  * 
- * Agents must extend this class for all Use Cases.
+ * All Use Case implementations must extend this class.
  * It enforces:
  * 1. Automatic Tracing (Spans)
  * 2. Automatic Logging (Start/End/Fail)
@@ -40,8 +40,7 @@ export abstract class BaseComponent<TInput, TOutput> {
         });
 
         try {
-            // THE HOLE
-            // We pass the NEW span ID as the traceId for the child
+            // Delegate execution to the implementation, propagating the trace context.
             const childCtx: RitaCtx = { ...ctx, traceId: span.traceId };
             const result = await this._run(childCtx, input);
 
@@ -64,8 +63,8 @@ export abstract class BaseComponent<TInput, TOutput> {
     }
 
     /**
-     * The Logic Hole.
-     * Agents implement this method to perform business logic.
+     * The internal execution logic.
+     * Subclasses must implement this method to perform business logic.
      */
     protected abstract _run(ctx: RitaCtx, input: TInput): Promise<TOutput>;
 
@@ -79,9 +78,7 @@ export abstract class BaseComponent<TInput, TOutput> {
 
 }
 
-// TODO(P0-CQRS): Split BaseComponent into CQRS-aware base classes. Keep BaseComponent for now but introduce BaseCommand and BaseQuery (new files) and migrate examples/tests to them. BaseCommand is allowed to call ctx.commit; BaseQuery must not have access to commit or writers.
-
-// TODO(P0-CQRS): Remove the confusing comment “THE HOLE We pass NEW span ID as traceId”; instead clarify trace propagation. Confirm childCtx should carry same traceId; do not mutate semantics later.
+// TODO(P0-CQRS): Migrate remaining examples/tests to BaseCommand and BaseQuery.
 
 // TODO(P1): Add an invariant test: Query handler cannot write (compile-time via types and/or runtime via commit capability absence).
 

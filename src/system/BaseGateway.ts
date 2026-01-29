@@ -56,7 +56,5 @@ export abstract class BaseGateway {
     }
 }
 
-// TODO(P1-CQRS): Introduce BaseRepository separately from BaseGateway (new file). Repos need commit scope semantics and read/write split; gateways remain “external calls”. BaseGateway can remain unchanged.
-
 // TODO(P1): Consider allowing safeExecute to accept operation metadata (e.g., retry policy) later; punt for now.
 
