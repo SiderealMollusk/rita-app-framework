@@ -13,7 +13,12 @@ class TestGateway extends BaseGateway {
             return 'Success';
         });
     }
+
+    public async testSafeExecute<T>(ctx: RitaCtx, op: string, fn: () => Promise<T>): Promise<T> {
+        return this.safeExecute(ctx, op, fn);
+    }
 }
+
 
 describe('BaseGateway', () => {
     let gateway: TestGateway;
@@ -50,5 +55,27 @@ describe('BaseGateway', () => {
         expect(mockSpan.recordException).toHaveBeenCalled();
 
         expect(mockSpan.end).toHaveBeenCalled();
+        expect(mockSpan.end).toHaveBeenCalled();
     });
+
+    it('should catch non-Error objects and record them safely', async () => {
+        // Mock safeExecute logic if needed, or subclass modification.
+        // Actually, we can just throw a string from the callback block.
+        const promise = gateway.testSafeExecute({ traceId: 't1' }, 'failOp', async () => {
+            throw "String Error";
+        });
+
+        await expect(promise).rejects.toBe("String Error");
+
+        expect(Logger.error).toHaveBeenCalledWith(
+            expect.stringContaining('FAILED'),
+            expect.objectContaining({ error: "String Error" })
+        );
+        expect(mockSpan.recordException).toHaveBeenCalledWith(expect.any(Error));
+        const recordedError = mockSpan.recordException.mock.calls[0][0];
+        expect(recordedError).toBeInstanceOf(Error);
+        expect(recordedError.message).toBe("String Error");
+    });
+
+
 });

@@ -72,6 +72,30 @@ describe('BaseComponent', () => {
             expect.objectContaining({ error: 'Boom' })
         );
     });
+
+    it('should handle non-Error exceptions gracefully', async () => {
+        const input = { value: 'crash_string' };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        jest.spyOn(component as any, '_run').mockRejectedValueOnce('Critical String Failure');
+
+
+        await expect(component.execute(mockCtx, input)).rejects.toBe('Critical String Failure');
+
+        // Verify Logging captures string message
+        expect(Logger.error).toHaveBeenCalledWith(
+            '[TestComponent] Failed',
+            expect.objectContaining({ error: 'Critical String Failure' })
+        );
+
+        // Verify Exception Recording converts to Error
+        expect(mockSpan.recordException).toHaveBeenCalledWith(expect.any(Error));
+        // Verify that the error passed to recordException is NOT the string itself, but a wrapped Error
+        const recordedError = mockSpan.recordException.mock.calls[0][0];
+        expect(recordedError).toBeInstanceOf(Error);
+        expect(recordedError.message).toBe('Critical String Failure');
+    });
+
+
 });
 
 import { BaseCommand } from './cqrs/BaseCommand';
