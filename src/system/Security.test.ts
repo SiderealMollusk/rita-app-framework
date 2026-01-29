@@ -11,7 +11,7 @@ class Hacker {
 }
 
 class TestVO extends BaseValueObject<{ val: number }> {
-    public validate(data: { val: number }) { }
+    protected validate(_data: { val: number }) { }
 }
 
 describe('Security (TDD)', () => {

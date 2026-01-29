@@ -1,4 +1,4 @@
-import { BaseInteraction, CommandInteraction } from './BaseInteraction';
+import { CommandInteraction } from './BaseInteraction';
 import { BaseComponent } from './BaseComponent';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';

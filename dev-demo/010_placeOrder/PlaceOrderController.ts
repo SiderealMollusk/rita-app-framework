@@ -1,6 +1,5 @@
-import { BaseInteraction } from '../../src/system/BaseInteraction';
 import { OrderRepository } from './OrderRepository';
-import { Order } from './Order';
+
 
 
 import { CommandInteraction } from '../../src/system/BaseInteraction';

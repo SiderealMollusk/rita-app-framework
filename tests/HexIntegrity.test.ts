@@ -1,6 +1,7 @@
 import { PlaceOrderHex } from '../../dev-demo/010_placeOrder/hex';
 import { TagOrderHex } from '../../dev-demo/011_vip_tagging/hex';
-import { Hexagon } from '../../src/system/Hexagon';
+
+
 
 describe('Hex Definitions (Manifest Integrity)', () => {
 

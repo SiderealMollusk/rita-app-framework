@@ -75,11 +75,13 @@ describe('BaseComponent', () => {
 
 import { BaseCommand } from './cqrs/BaseCommand';
 import { BaseQuery } from './cqrs/BaseQuery';
-import { CommitScope } from './persistence/CommitScope';
+
+
 
 class TestCommand extends BaseCommand<void, void> {
-    protected async _run(ctx: RitaCtx, input: void): Promise<void> {
-        await this.commit(ctx, async (scope) => {
+    protected async _run(ctx: RitaCtx, _input: void): Promise<void> {
+        await this.commit(ctx, async (_scope) => {
+
             // Write something
         });
     }

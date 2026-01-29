@@ -1,5 +1,5 @@
 import { Logger, LogContext } from './telemetry/Logger';
-import { Tracer, Span } from './telemetry/Tracer';
+import { Tracer } from './telemetry/Tracer';
 import { RitaCtx } from './RitaCtx';
 
 /**

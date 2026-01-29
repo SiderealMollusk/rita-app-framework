@@ -1,4 +1,6 @@
+/* eslint-disable no-restricted-syntax */
 import { RitaClock, RealClock, FixedClock } from './Clock';
+
 
 describe('RitaClock', () => {
     afterEach(() => {

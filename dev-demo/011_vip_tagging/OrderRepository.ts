@@ -1,7 +1,8 @@
 import { BaseRepository } from '../../src/system/persistence/BaseRepository';
 import { CommitScope } from '../../src/system/persistence/CommitScope';
 import { Order } from './Order';
-import { RitaCtx } from '../../src/system/RitaCtx';
+
+
 
 export class OrderRepository extends BaseRepository<Order> {
     // In-Memory Log (Acting as DB)
@@ -16,7 +17,9 @@ export class OrderRepository extends BaseRepository<Order> {
         return undefined;
     }
 
-    protected async _write(scope: CommitScope, id: string, data: Order, expectedVersion?: number): Promise<void> {
+
+    protected async _write(scope: CommitScope, id: string, data: Order, _expectedVersion?: number): Promise<void> {
+
         // In a real app, scope would hold the transaction. 
         // Here we just verify scope exists (which TS ensures).
 

@@ -2,7 +2,8 @@
 import { BaseGateway } from '../BaseGateway';
 import { CommitScope } from './CommitScope';
 import { Writer } from './RepositoryPorts';
-import { RitaCtx } from '../RitaCtx';
+
+
 
 /**
  * Base Repository.

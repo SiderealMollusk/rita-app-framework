@@ -1,6 +1,7 @@
 import { BaseRepository } from './BaseRepository';
 import { CommitScope } from './CommitScope';
-import { RitaCtx } from '../RitaCtx';
+
+
 
 // --- Mocks ---
 
@@ -9,9 +10,9 @@ class TestRepo extends BaseRepository<any> {
     public writeCalled = false;
     public argsPassed: any[] = [];
 
-    protected async _write(scope: CommitScope, id: string, data: any, expectedVersion?: number): Promise<void> {
+    protected async _write(_scope: CommitScope, id: string, data: any, _expectedVersion?: number): Promise<void> {
         this.writeCalled = true;
-        this.argsPassed = [scope, id, data, expectedVersion];
+        this.argsPassed = [_scope, id, data, _expectedVersion];
     }
 
     protected getId(entity: any): string {

@@ -1,8 +1,7 @@
 import { BehaviorSpec } from '../../src/system/BehaviorSpec';
 import { PlaceOrderController } from './PlaceOrderController';
 import { OrderRepository } from './OrderRepository';
-import { Order } from './Order';
-import { Logger } from '../../src/system/telemetry/Logger';
+
 
 // Mocks
 jest.mock('../../src/system/telemetry/Logger');

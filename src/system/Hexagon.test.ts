@@ -1,5 +1,4 @@
 import { Hexagon } from './Hexagon';
-import { BehaviorSpec } from './BehaviorSpec';
 
 describe('Hexagon', () => {
     it('should freeze the config', () => {
