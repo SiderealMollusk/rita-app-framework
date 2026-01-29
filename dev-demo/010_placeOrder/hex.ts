@@ -12,8 +12,9 @@ import { OrderRepository } from './OrderRepository';
  */
 export const PlaceOrderHex = Hexagon.define({
     name: 'Place Order Feature',
-    useCases: [PlaceOrder],
-    interactions: [PlaceOrderController],
-    policies: [PlaceOrderPolicy],
-    gateways: [OrderRepository]
+    primaryAdapter: PlaceOrderController,
+    application: PlaceOrder,
+    ports: PlaceOrderPolicy, // Policies kind of fit here? Or Secondary?
+    secondaryAdapters: [OrderRepository]
 });
+

@@ -2,19 +2,11 @@ import { BaseComponent } from './BaseComponent';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
 import { RitaCtx } from './RitaCtx';
-import { v4 as uuidv4 } from 'uuid'; // Need to npm install uuid or just shim it for now
+import { v4 as uuidv4 } from 'uuid';
+import { InMemoryCommitScope } from './persistence/InMemoryCommitScope'; // Default implementation
 
 /**
  * The Inbound Boundary (Controller/CLI/Event Handler).
- * 
- * This class abstracts the "entry point" to the application.
- * It is the ONLY place that is allowed to parse "Dirty" input (JSON/CLI Args)
- * and convert it into "Clean" Domain Objects (Entities/VOs).
- * 
- * Rules:
- * 1. Can ONLY call BaseComponent (Use Cases).
- * 2. Cannot contain business logic.
- * 3. Handles request/response translation.
  */
 export abstract class BaseInteraction<TInput, TOutput> {
     protected readonly name: string;
@@ -26,18 +18,33 @@ export abstract class BaseInteraction<TInput, TOutput> {
     public abstract run(input: TInput): Promise<TOutput>;
 
     /**
-     * Helper to execute a Use Case safely.
-     * Wraps the call in a Span and ensures errors are logged at the boundary.
-     * 
-     * THIS acts as the "Context Root" - creating the fresh Trace ID.
+     * Shared logic to run a use case.
+     * @param useCase The use case to run
+     * @param input Input data
+     * @param isCommand Whether this involves writes (needs commit capability)
      */
-    protected async executeUseCase<UIn, UOut>(
+    protected async executeUseCaseInternal<UIn, UOut>(
         useCase: BaseComponent<UIn, UOut>,
-        input: UIn
+        input: UIn,
+        isCommand: boolean
     ): Promise<UOut> {
-        // We create the Root Span (no parent)
         const traceId = uuidv4();
-        const ctx: RitaCtx = { traceId };
+
+        let ctx: RitaCtx = { traceId };
+
+        if (isCommand) {
+            // Attach Commit Capability
+            ctx = {
+                ...ctx,
+                commit: async (fn) => {
+                    // Default Implementation: In-Memory Scope (for now)
+                    // In real app, this would wrap a DB Transaction
+                    const scope = new InMemoryCommitScope();
+                    // Future: await db.transaction(async (tx) => { ... })
+                    await fn(scope);
+                }
+            };
+        }
 
         const span = Tracer.startSpan(`[Interaction] ${this.name} -> ${useCase.constructor.name}`, ctx);
 
@@ -57,7 +64,17 @@ export abstract class BaseInteraction<TInput, TOutput> {
     }
 }
 
-// TODO(P0-CQRS): Add an explicit “interaction kind” concept: QueryInteraction vs CommandInteraction (or a flag on executeUseCase) to construct RitaCtx with/without commit capability. Commands get ctx.commit; queries do not.
+export abstract class QueryInteraction<TIn, TOut> extends BaseInteraction<TIn, TOut> {
+    protected async executeUseCase<UIn, UOut>(useCase: BaseComponent<UIn, UOut>, input: UIn): Promise<UOut> {
+        return this.executeUseCaseInternal(useCase, input, false); // No Commit
+    }
+}
 
-// TODO(P1): Add idempotencyKey plumbing option at the interaction boundary (optional input field or derived key) but keep “punt” unless needed; document intended usage.
+export abstract class CommandInteraction<TIn, TOut> extends BaseInteraction<TIn, TOut> {
+    protected async executeUseCase<UIn, UOut>(useCase: BaseComponent<UIn, UOut>, input: UIn): Promise<UOut> {
+        return this.executeUseCaseInternal(useCase, input, true); // Has Commit
+    }
+}
+
+
 

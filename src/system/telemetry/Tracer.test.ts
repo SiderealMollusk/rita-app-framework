@@ -1,5 +1,6 @@
-import { Tracer } from './Tracer';
+import { Tracer, Span } from './Tracer';
 import { Logger } from './Logger';
+import { RitaClock } from '../Clock';
 
 // Mock the Logger to avoid polluting console and to verify Tracer calls it
 jest.mock('./Logger');
@@ -9,7 +10,14 @@ describe('Tracer', () => {
         jest.clearAllMocks();
     });
 
+    it('should start a span via static method', () => {
+        const span = Tracer.startSpan('StaticSpan');
+        expect(span).toBeInstanceOf(Span);
+        expect(span.name).toBe('StaticSpan');
+    });
+
     it('should start a span with a new traceId', () => {
+
         const span = Tracer.startSpan('test-span');
 
         expect(span.name).toBe('test-span');
@@ -33,9 +41,12 @@ describe('Tracer', () => {
     it('should log duration when ending a span', () => {
         const span = Tracer.startSpan('duration-test');
 
-        // Slight delay to ensure duration > 0 (optional mock injection usually better but this is simple)
-        const start = Date.now();
-        while (Date.now() - start < 2) { }
+        const start = RitaClock.now().getTime();
+        while (RitaClock.now().getTime() - start < 2) {
+            // Busy wait
+        }
+
+
 
         span.end();
 

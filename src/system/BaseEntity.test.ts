@@ -12,6 +12,16 @@ describe('BaseEntity', () => {
         expect(entity.id).toBe('123');
     });
 
+    it('should prevent direct mutation', () => {
+        // For this test, we need an entity that can be created without an ID
+        // or we need to provide a valid ID. Let's provide a valid ID.
+        const entity = new TestEntity({ id: '1', name: 'test' });
+
+        expect(() => entity._data.name = 'changed').toThrow();
+    });
+
+
+
     it('should check equality based on ID', () => {
         const e1 = new TestEntity({ id: '123', name: 'A' });
         const e2 = new TestEntity({ id: '123', name: 'B' }); // Same ID, different data
@@ -21,9 +31,15 @@ describe('BaseEntity', () => {
         expect(e1.equals(e3)).toBe(false);
     });
 
+    it('should prevent mutation of nested objects if frozen', () => {
+        const e = new TestEntity({ id: '1', name: 'A' });
+        expect(() => (e._data as any).someNewProp = 'bad').toThrow();
+    });
+
+
     it('should return false for non-entity comparison', () => {
         const e1 = new TestEntity({ id: '123', name: 'A' });
-        // @ts-ignore
-        expect(e1.equals({ id: '123' })).toBe(false);
+
+        expect(e1.equals({ id: '123' } as any)).toBe(false);
     });
 });

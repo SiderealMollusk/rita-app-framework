@@ -10,7 +10,9 @@ export type OrderProps = {
 export class Order extends BaseEntity<OrderProps> {
     protected validate(data: OrderProps) {
         if (!data.customerId) throw new Error("Order must have a customerId");
+        if (data.amount < 0) throw new Error("Amount cannot be negative");
     }
+
 
     public get amount() { return this._data.amount; }
     public get status() { return this._data.status; }

@@ -1,10 +1,11 @@
+import { RitaClock } from '../Clock';
 import * as util from 'util';
 
 export enum LogLevel {
-    DEBUG = 'debug',
-    INFO = 'info',
-    WARN = 'warn',
-    ERROR = 'error'
+    DEBUG = 0,
+    INFO = 1,
+    WARN = 2,
+    ERROR = 3
 }
 
 export type LogContext = Record<string, any>;
@@ -14,34 +15,27 @@ export type LogContext = Record<string, any>;
  * Enforces metadata consistent with the "Agent-First" philosophy.
  */
 export class Logger {
+    public static level: LogLevel = LogLevel.INFO;
 
     // In a real app, we'd inject a correlation ID provider here.
     // For now, we'll accept context objects.
 
-    private static log(level: LogLevel, message: string, context?: LogContext) {
-        const timestamp = new Date().toISOString();
-        const payload = {
-            ts: timestamp,
-            level,
-            msg: message,
-            ...context
+    public static log(level: LogLevel, message: string, payload?: object) {
+        if (level < Logger.level) return;
+
+        const entry = {
+            timestamp: RitaClock.now().toISOString(),
+            level: LogLevel[level], // String representation
+            message,
+            ...payload
         };
 
-        // We use console for now, but this is the "Plug" for OpenTelemetry later.
-        const output = JSON.stringify(payload);
+        const output = JSON.stringify(entry);
 
-        switch (level) {
-            case LogLevel.ERROR:
-                console.error(output);
-                break;
-            case LogLevel.WARN:
-                console.warn(output);
-                break;
-            case LogLevel.INFO:
-            case LogLevel.DEBUG:
-            default:
-                console.log(output);
-                break;
+        if (level >= LogLevel.ERROR) {
+            console.error(output);
+        } else {
+            console.log(output);
         }
     }
 

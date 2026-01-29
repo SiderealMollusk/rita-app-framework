@@ -1,4 +1,4 @@
-import { BaseInteraction } from '../../src/system/BaseInteraction';
+import { CommandInteraction } from '../../src/system/BaseInteraction';
 import { TagOrder } from './TagOrder';
 import { UserGateway } from './UserGateway';
 import { OrderRepository } from './OrderRepository';
@@ -9,7 +9,8 @@ type RequestDTO = {
     amount: number;
 };
 
-export class TagOrderController extends BaseInteraction<RequestDTO, any> {
+export class TagOrderController extends CommandInteraction<RequestDTO, any> {
+
     private useCase: TagOrder;
 
     // We allow passing gateways for easy testing/wiring

@@ -1,4 +1,4 @@
-import { BaseInteraction } from './BaseInteraction';
+import { BaseInteraction, CommandInteraction } from './BaseInteraction';
 import { BaseComponent } from './BaseComponent';
 import { Logger } from './telemetry/Logger';
 import { Tracer } from './telemetry/Tracer';
@@ -17,13 +17,15 @@ class TestUseCase extends BaseComponent<string, string> {
 }
 
 // Concrete Interaction
-class TestController extends BaseInteraction<string, string> {
+class TestController extends CommandInteraction<string, string> {
+
     private useCase = new TestUseCase();
 
     public async run(input: string): Promise<string> {
         return this.executeUseCase(this.useCase, input);
     }
 }
+
 
 describe('BaseInteraction', () => {
     let controller: TestController;

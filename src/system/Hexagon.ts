@@ -7,11 +7,12 @@
  */
 export type HexagonConfig = {
     name: string;
-    interactions: Function[];
-    useCases: Function[];
-    gateways: Function[];
-    policies: Function[];
+    primaryAdapter: any;
+    application: any;
+    ports: any;
+    secondaryAdapters: any[];
 };
+
 
 export class Hexagon {
     /**

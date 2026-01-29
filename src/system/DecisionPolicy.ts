@@ -7,14 +7,35 @@ import { RitaCtx } from './RitaCtx';
  * The Key to the Kingdom.
  * Only the Framework can construct this.
  */
+const FrameworkInternals = Symbol("FrameworkInternals");
+
+/**
+ * The Key to the Kingdom.
+ * Only the Framework can construct this.
+ */
 export class PolicyToken {
     private readonly _secret = Symbol("PolicyToken");
 
-    // Internal factory - in a real package this would be hidden
-    static create(): PolicyToken {
-        return new PolicyToken();
+    // Private constructor prevents `new PolicyToken()` outside
+    private constructor(secret: symbol) {
+        if (secret !== FrameworkInternals) {
+            throw new Error("Cannot instantiate PolicyToken directly!");
+        }
+    }
+
+    // Internal factory - only accessible if you have the symbol (which is not exported)
+    static create(secret: symbol): PolicyToken {
+        return new PolicyToken(secret);
     }
 }
+
+// Internal Helper for the DecisionPolicy class to use
+const createPolicyToken = () => PolicyToken.create(FrameworkInternals);
+
+// Test Helper (Restricted - DO NOT USE IN PRODUCTION CODE)
+export const _TEST_createPolicyToken = () => PolicyToken.create(FrameworkInternals);
+
+
 
 // Data-Driven Evolution (No Functions!)
 export type Evolution<TTarget extends BaseValueObject<any>> = {
@@ -36,7 +57,7 @@ export abstract class DecisionPolicy<TTarget extends BaseValueObject<any>, TCont
 
     constructor() {
         this.name = this.constructor.name;
-        this.token = PolicyToken.create();
+        this.token = createPolicyToken();
     }
 
     /**
@@ -84,9 +105,11 @@ export abstract class DecisionPolicy<TTarget extends BaseValueObject<any>, TCont
             return currentTarget;
 
         } catch (err: any) {
+            span.recordException(err);
             span.end();
             throw err;
         }
+
     }
 }
 

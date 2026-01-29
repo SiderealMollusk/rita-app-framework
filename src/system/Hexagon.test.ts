@@ -3,15 +3,16 @@ import { BehaviorSpec } from './BehaviorSpec';
 
 describe('Hexagon', () => {
     it('should freeze the config', () => {
-        const config = Hexagon.define({
-            name: 'TestPod',
-            interactions: [],
-            useCases: [],
-            gateways: [],
-            policies: []
+        const hexagon = Hexagon.define({
+            name: 'TestHexagon',
+            primaryAdapter: () => { },
+            application: () => { },
+            ports: () => { },
+            secondaryAdapters: []
         });
 
-        expect(Object.isFrozen(config)).toBe(true);
+
+        expect(Object.isFrozen(hexagon)).toBe(true);
     });
 
     it('should require a name', () => {

@@ -1,5 +1,6 @@
 import { Logger } from './Logger';
 import { v4 as uuidv4 } from 'uuid'; // We need a UUID generator. I will need to install this.
+import { RitaClock } from '../Clock';
 
 /**
  * A simulation of a Distributed Tracing Span.
@@ -15,12 +16,13 @@ export class Span {
         this.name = name;
         this.traceId = traceId || uuidv4();
         this.spanId = uuidv4();
-        this.startTime = Date.now();
+        this.startTime = RitaClock.now().getTime();
         Logger.debug(`[Span Started] ${this.name}`, { traceId: this.traceId, spanId: this.spanId });
     }
 
     end() {
-        const duration = Date.now() - this.startTime;
+        const duration = RitaClock.now().getTime() - this.startTime;
+
         Logger.debug(`[Span Ended] ${this.name}`, {
             traceId: this.traceId,
             spanId: this.spanId,

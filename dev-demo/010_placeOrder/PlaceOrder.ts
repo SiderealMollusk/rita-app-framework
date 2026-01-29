@@ -4,11 +4,12 @@ import { PlaceOrderPolicy } from './PlaceOrderPolicy';
 import { OrderRepository } from './OrderRepository';
 import { RitaCtx } from '../../src/system/RitaCtx';
 
-type PlaceOrderInput = {
+export type PlaceOrderInput = {
     id: string;
     amount: number;
     customerId: string;
 };
+
 
 export class PlaceOrder extends BaseComponent<PlaceOrderInput, Order> {
     constructor(
