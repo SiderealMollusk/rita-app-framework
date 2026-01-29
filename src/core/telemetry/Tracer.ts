@@ -1,10 +1,5 @@
 import { BaseCtx } from '../context/BaseCtx';
-
-export interface Span {
-    traceId: string;
-    end(): void;
-    recordException(err: Error): void;
-}
+import { Span } from './Span';
 
 export class Tracer {
     static startSpan(name: string, ctx: BaseCtx): Span {

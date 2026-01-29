@@ -14,6 +14,7 @@ src/
       capabilities/
         CommitCap.ts
         RawQueryCap.ts
+        AdminCap.ts
       promotion/
         ContextFactory.ts
         promoteExternalToInternal.ts
@@ -34,6 +35,7 @@ src/
       RitaClock.ts
 
     adapters/
+      BasePrimaryAdapter.ts          # External entrypoint base
       BaseSecondaryAdapter.ts        # (renamed from BaseGateway)
       BaseRepository.ts              # (recommended) typed read/write gates
       AdminRepository.ts             # (recommended) raw/system gated escape hatch
@@ -50,6 +52,7 @@ src/
 
     errors/
       KernelError.ts
+      AgentGuidanceError.ts          # AI-specific fix instructions
       DomainValidationError.ts
       NotFoundError.ts
       BusinessRuleViolationError.ts

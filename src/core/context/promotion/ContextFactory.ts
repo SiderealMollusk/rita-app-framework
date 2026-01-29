@@ -5,9 +5,13 @@ import { ExternalCtx } from '../ExternalCtx';
 import { InternalCtx } from '../InternalCtx';
 import { CommandCtx } from '../CommandCtx';
 import { SystemCtx } from '../SystemCtx';
-import { CommitCap } from '../capabilities/CommitCap';
-import { RawQueryCap } from '../capabilities/RawQueryCap';
-import { AdminCap } from '../capabilities/AdminCap';
+import { promoteExternalToInternal } from './promoteExternalToInternal';
+import { promoteInternalToCommand } from './promoteInternalToCommand';
+import { promoteToSystem } from './promoteToSystem';
+
+export { promoteExternalToInternal } from './promoteExternalToInternal';
+export { promoteInternalToCommand } from './promoteInternalToCommand';
+export { promoteToSystem } from './promoteToSystem';
 
 export class ContextFactory {
     /**
@@ -25,41 +29,20 @@ export class ContextFactory {
      * Promotes an external context to an internal trusted context.
      */
     static promoteToInternal(ctx: ExternalCtx, principal?: string): InternalCtx {
-        // Promotion logic: check authentication, etc.
-        // For now, we just create the new context.
-        return {
-            traceId: ctx.traceId,
-            trustLevel: TrustLevel.Internal,
-            capabilities: new CapabilityBag(),
-            principal
-        };
+        return promoteExternalToInternal(ctx, principal);
     }
 
     /**
      * Promotes an internal context to a command context with write authority.
      */
     static promoteToCommand(ctx: InternalCtx): CommandCtx {
-        return {
-            traceId: ctx.traceId,
-            trustLevel: TrustLevel.Command,
-            capabilities: new CapabilityBag([CommitCap.createInternal()]),
-            principal: ctx.principal
-        };
+        return promoteInternalToCommand(ctx);
     }
 
     /**
      * Elevates a context to system level with full authority.
      */
-    static elevateToSystem(ctx: InternalCtx): SystemCtx {
-        return {
-            traceId: ctx.traceId,
-            trustLevel: TrustLevel.System,
-            capabilities: new CapabilityBag([
-                CommitCap.createInternal(),
-                RawQueryCap.createInternal(),
-                AdminCap.createInternal()
-            ]),
-            principal: ctx.principal
-        };
+    static promoteToSystem(ctx: InternalCtx): SystemCtx {
+        return promoteToSystem(ctx);
     }
 }

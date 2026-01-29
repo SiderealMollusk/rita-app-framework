@@ -25,6 +25,7 @@ If you add a new core concept, add it to the table before writing code.
 | PolicyToken | Capability | Core / Auth | Authorizes domain state evolution |
 | CommitCap | Capability | Core / Auth | Authorizes durable writes |
 | RawQueryCap | Capability | Core / Auth | Authorizes raw DB queries (system-only) |
+| AdminCap | Capability | Core / Auth | Authorizes administrative operations |
 | Tracer | Service | Core / Observability | Creates and manages spans |
 | Span | Type | Core / Observability | Represents a traced execution unit |
 | Logger | Service | Core / Observability | Structured logging with context |
@@ -45,6 +46,7 @@ If you add a new core concept, add it to the table before writing code.
 | BasePrimaryAdapter | Abstract Class | Core / Adapters | External entrypoint (HTTP/CLI/Event) |
 | ForbiddenScan | Tool | Core / Enforcement | Test-time structural audit tool |
 | BoundaryCheck | Tool | Core / Enforcement | Test-time layer dependency validator |
+| AgentGuidanceError | Error | Core / DX | AI-specific fix instructions for architectural violations |
 2) Context System
 
 TrustLevel
