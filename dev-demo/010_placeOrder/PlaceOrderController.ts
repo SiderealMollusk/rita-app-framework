@@ -5,7 +5,8 @@ import { OrderRepository } from './OrderRepository';
 import { CommandInteraction } from '../../src/system/BaseInteraction';
 import { PlaceOrder, PlaceOrderInput } from './PlaceOrder';
 
-export class PlaceOrderController extends CommandInteraction<PlaceOrderInput, any> {
+export class PlaceOrderController extends CommandInteraction<PlaceOrderInput, PlaceOrderResponse> {
+
     private useCase: PlaceOrder;
 
     constructor(repo: OrderRepository) {
@@ -13,7 +14,7 @@ export class PlaceOrderController extends CommandInteraction<PlaceOrderInput, an
         this.useCase = new PlaceOrder(repo);
     }
 
-    public async run(input: PlaceOrderInput): Promise<any> {
+    public async run(input: PlaceOrderInput): Promise<PlaceOrderResponse> {
         // In a real controller, we'd validate the JSON schema here
 
         const order = await this.executeUseCase(this.useCase, input);
@@ -25,4 +26,11 @@ export class PlaceOrderController extends CommandInteraction<PlaceOrderInput, an
         };
     }
 }
+
+type PlaceOrderResponse = {
+    id: string;
+    status: string;
+    amount: number;
+};
+
 

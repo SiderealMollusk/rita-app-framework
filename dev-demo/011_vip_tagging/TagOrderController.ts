@@ -9,7 +9,8 @@ type RequestDTO = {
     amount: number;
 };
 
-export class TagOrderController extends CommandInteraction<RequestDTO, any> {
+export class TagOrderController extends CommandInteraction<RequestDTO, TagOrderResponse> {
+
 
     private useCase: TagOrder;
 
@@ -30,10 +31,19 @@ export class TagOrderController extends CommandInteraction<RequestDTO, any> {
         const order = await this.executeUseCase(this.useCase, input);
 
         // Response Mapping
-        return {
+        const response: TagOrderResponse = {
             orderId: order.id,
             finalPriority: order.priority,
             note: order._provenance.history // Expose audit log for demo!
         };
+        return response;
     }
 }
+
+type TagOrderResponse = {
+    orderId: string;
+    finalPriority: string;
+    note: any[]; // It's a complex history object, keeping as any[] or unknown[] for now is fine, or define HistoryItem type
+};
+
+

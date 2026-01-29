@@ -5,13 +5,16 @@
  * This class serves as a runtime check (and documentation)
  * for the application structure.
  */
+export type Newable = { new(...args: never[]): unknown };
+
 export type HexagonConfig = {
     name: string;
-    primaryAdapter: any;
-    application: any;
-    ports: any;
-    secondaryAdapters: any[];
+    primaryAdapter: Newable;
+    application: Newable;
+    ports: Newable | Record<string, Newable>;
+    secondaryAdapters: Newable[];
 };
+
 
 
 export class Hexagon {

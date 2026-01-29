@@ -50,15 +50,17 @@ export abstract class BaseComponent<TInput, TOutput> {
 
             return result;
 
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : String(err);
             Logger.error(`[${this.name}] Failed`, {
                 ...executionContext,
-                error: err.message
+                error: errorMessage
             });
-            span.recordException(err);
+            span.recordException(err instanceof Error ? err : new Error(errorMessage));
             span.end();
             throw err;
         }
+
     }
 
     /**
@@ -71,9 +73,10 @@ export abstract class BaseComponent<TInput, TOutput> {
      * Optional hook to clean up input for logs (e.g. redact passwords).
      * Defaults to identity.
      */
-    protected sanitize(input: TInput): any {
+    protected sanitize(input: TInput): unknown {
         return input;
     }
+
 }
 
 // TODO(P0-CQRS): Split BaseComponent into CQRS-aware base classes. Keep BaseComponent for now but introduce BaseCommand and BaseQuery (new files) and migrate examples/tests to them. BaseCommand is allowed to call ctx.commit; BaseQuery must not have access to commit or writers.

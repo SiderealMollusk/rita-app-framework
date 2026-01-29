@@ -20,7 +20,7 @@ class TestComponent extends BaseComponent<{ value: string }, { result: string }>
 
 describe('BaseComponent', () => {
     let component: TestComponent;
-    let mockSpan: any;
+    let mockSpan: { traceId: string; end: jest.Mock; recordException: jest.Mock };
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -28,6 +28,7 @@ describe('BaseComponent', () => {
 
         // Mock the Span object returned by Tracer
         mockSpan = {
+
             traceId: 'test-trace-id',
             end: jest.fn(),
             recordException: jest.fn()

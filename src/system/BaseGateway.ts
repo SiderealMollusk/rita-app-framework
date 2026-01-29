@@ -42,15 +42,17 @@ export abstract class BaseGateway {
             span.end();
             return result;
 
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : String(err);
             Logger.error(`[Gateway] ${this.name}:${operationName} FAILED`, {
-                error: err.message,
+                error: errorMessage,
                 traceId: span.traceId
             });
-            span.recordException(err);
+            span.recordException(err instanceof Error ? err : new Error(errorMessage));
             span.end();
             throw err;
         }
+
     }
 }
 
