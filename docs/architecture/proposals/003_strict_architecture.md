@@ -7,10 +7,14 @@
 ## 1. The "Strict" Philosophy
 The Framework provides `Base*` classes which are unopinionated.
 The Framework *recommends* `Strict*` classes which enforce:
-1.  **Schema Contracts** (Zod everywhere).
-2.  **Auto-Logging** (Standardized telemetry).
-3.  **Scope Enforcement** (No scope, no execution).
-4.  **Governance** (No token, no write).
+
+1.  **Mandatory Outbox:** Domain Events are only durable if they are committed via UoW.
+    *   *Implementation:* `scope.uow.commit()` persists state + events in one transaction.
+2.  **No Nested UoWs:** UseCase = 1 Unit of Work.
+    *   *Enforcement:* `UoWFactory.open(ctx)` throws if a UoW is already active for that Scope.
+3.  **Schema Contracts:** Zod everywhere.
+4.  **Scope Enforcement:** No scope, no execution.
+
 
 ## 2. The Strict Template
 
