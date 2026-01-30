@@ -1,5 +1,5 @@
 import { BaseValueObject } from './BaseValueObject';
-import { PolicyToken } from './PolicyToken';
+import { PolicyToken, MINT_SYMBOL } from './PolicyToken';
 import { InternalCtx } from '../context/InternalCtx';
 import { Tracer } from '../telemetry/Tracer';
 import { Logger } from '../telemetry/Logger';
@@ -18,7 +18,7 @@ export abstract class DecisionPolicy<TTarget extends BaseValueObject<any>, TCont
 
     constructor() {
         this.name = this.constructor.name;
-        this.token = PolicyToken.createInternal();
+        this.token = (PolicyToken as any)[MINT_SYMBOL]();
     }
 
     /**

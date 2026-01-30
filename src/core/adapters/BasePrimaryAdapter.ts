@@ -9,6 +9,8 @@ import { ContextFactory } from '../context/promotion/ContextFactory';
  * - Parse and Validate input
  * - Authenticate and Create Context
  * - Invoke Use Cases
+ *
+ * @deprecated Use StrictPrimaryAdapter instead for better safety and enforcement.
  */
 export abstract class BasePrimaryAdapter implements PrimaryPort {
     protected readonly name: string;

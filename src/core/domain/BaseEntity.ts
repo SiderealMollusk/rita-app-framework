@@ -2,6 +2,7 @@ import { BaseValueObject, Provenance } from './BaseValueObject';
 
 /**
  * Immutable domain state with Identity.
+ * @deprecated Use StrictEntity instead for better safety and enforcement.
  */
 export abstract class BaseEntity<TData, TId = string> extends BaseValueObject<TData> {
     public readonly id: TId;
