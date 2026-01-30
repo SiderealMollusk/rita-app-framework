@@ -1,388 +1,100 @@
 40 — Execution Flows (Ṛta Framework)
 
 This document defines the canonical runtime sequences of Ṛta.
-If 30_core_api.md is the law, this is the choreography.
-
-Every execution path in the system should resemble one of these flows.
+Every execution path in the system should follow one of these managed flows.
 
 ⸻
 
 1) The Core Pattern
 
-All flows in Ṛta reduce to:
+All flows in Ṛta follow this managed lifecycle:
 
-Ingress
-→ Context Creation
-→ Trust Promotion
-→ Orchestration
-→ Policy Evaluation
-→ Evolution
-→ Persistence or Emission
+Ingress (Adapter)
+→ Scope Creation (OperationScope)
+→ Trust Promotion (ContextFactory)
+→ Orchestration (StrictUseCase)
+→ Policy Evaluation (StrictPolicy)
+→ Evolution (PolicyToken)
+→ Persistence (StrictRepository / UnitOfWork)
+→ Post-Commit (Event Dispatching)
 → Exit
-
-What changes is:
-	•	Who is allowed to promote trust
-	•	What capabilities exist
-	•	Whether state is mutated
-	•	Whether results are returned or emitted
 
 ⸻
 
 2) External Command Flow (Write Path)
 
-Use this for:
-	•	HTTP POST / PUT
-	•	CLI commands
-	•	Webhooks
-	•	User-driven actions
+Use this for state-changing operations (HTTP POST/PUT, CLI commands).
 
-Sequence
-	1.	Ingress (Primary Adapter)
-An adapter receives untrusted input.
-
-Examples:
-	•	HTTP controller
-	•	CLI handler
-	•	Queue consumer
-
-	2.	BaseUseCase.run
-
-	•	Creates ExternalCtx
-	•	Assigns traceId
-	•	Starts root span
-
-	3.	Context Promotion
-
-	•	ExternalCtx → InternalCtx
-This marks input as sanitized and structurally valid.
-
-	4.	Application Orchestration (BaseComponent)
-
-	•	Starts child span
-	•	Fetches read models via repositories or secondary adapters
-	•	Calls policies
-
-	5.	Policy Evaluation
-
-	•	Domain logic runs
-	•	Evolutions are proposed
-	•	PolicyToken authorizes mutation
-
-	6.	Commit Gate
-
-	•	InternalCtx → CommandCtx
-	•	CommitCap is required
-
-	7.	Persistence
-
-	•	Repository.save(CommandCtx, entity)
-	•	Events may be emitted
-
-	8.	Exit
-
-	•	Result returned to ingress
-	•	Root span closes
-
-⸻
-
-Trace Shape
-
-UseCase Span
-→ Component Span
-→ Policy Span
-→ Repository Span
+Sequence:
+1. **Ingress:** `StrictPrimaryAdapter` receives untrusted input.
+2. **Scope Creation:** Adapter creates a `CommandScope` (which includes a `UnitOfWork` and a `CommandCtx`).
+3. **Orchestration:** `StrictUseCase.run(scope, input)` is invoked.
+   - Starts a managed trace span.
+   - Validates input using Zod.
+4. **Business Logic:** Use Case invokes one or more `StrictPolicies`.
+   - Uses `scope.authorize(policy, token => ...)` to obtain a `PolicyToken`.
+   - Policy returns `Evolutions`.
+5. **Evolution:** Use Case applies evolutions to `StrictEntities`.
+   - Requires the `PolicyToken`.
+   - Provenance is automatically recorded.
+6. **Persistence:** Use Case saves entities via `scope.uow.repository.save(entity)`.
+   - Entities and their events are staged in the `UnitOfWork`.
+7. **Commit:** Use Case commits the transaction via `scope.uow.commit()`.
+   - Atomic write of state and outbox events.
+8. **Egress:** Post-commit handlers (or the outbox dispatcher) publish events.
 
 ⸻
 
 3) External Query Flow (Read Path)
 
-Use this for:
-	•	HTTP GET
-	•	Dashboards
-	•	Status checks
-	•	Search endpoints
+Use this for side-effect free operations (HTTP GET).
 
-Sequence
-	1.	Ingress (Primary Adapter)
-Receives untrusted input.
-	2.	BaseUseCase.run
-Creates ExternalCtx.
-	3.	Promotion
-ExternalCtx → InternalCtx
-	4.	Application Orchestration
-
-	•	Calls repositories
-	•	Calls read models
-	•	No policies executed
-
-	5.	Return
-
-	•	No mutation
-	•	No commit
-	•	No events
+Sequence:
+1. **Ingress:** `StrictPrimaryAdapter` creates a `QueryScope` (Read-only `InternalCtx`, no `UnitOfWork`).
+2. **Orchestration:** `StrictUseCase.run(scope, input)` validates input.
+3. **Data Access:** Use Case calls repositories for data.
+   - Note: Repositories must reject write operations since the scope lacks `CommitCap`.
+4. **Return:** Data is returned; no transaction or outbox events are created.
 
 ⸻
 
-Rule
+4) Internal Command Flow (Job / Saga Path)
 
-Policies must not run on this path.
-If they do, it is a bug.
+Use this for background tasks, event handlers, or scheduled jobs.
 
-⸻
-
-4) Internal Command Flow (Job / Worker Path)
-
-Use this for:
-	•	Scheduled jobs
-	•	Background tasks
-	•	Queue consumers
-	•	Workflow steps
-
-Sequence
-	1.	System Ingress (Primary Adapter)
-Core or scheduler creates InternalCtx.
-	2.	Optional Promotion
-InternalCtx → CommandCtx
-	3.	Application Orchestration
-
-	•	Load state
-	•	Apply policies
-	•	Accumulate evolutions
-
-	4.	Commit
-
-	•	Repository.save
-	•	Event emission
-
-	5.	Exit
-
-	•	Result logged
-	•	No user-facing response
+Sequence:
+1. **System Ingress:** A background runner or event bus creates an `InternalCtx` (or `SystemCtx`).
+2. **Scope Creation:** An `OperationScope` is created for the task.
+3. **Execution:** Follows the same Orchestration -> Policy -> Persistence flow as an External Command.
 
 ⸻
 
-Trust Model
+5) Trace Hierarchy
 
-Jobs are trusted, but not omnipotent.
-They still require CommitCap to mutate state.
+A valid execution flow must produce a trace graph that reflects the architecture:
 
-⸻
+[StrictPrimaryAdapter] (Root)
+└── [StrictUseCase]
+    ├── [StrictPolicy] (Decision)
+    ├── [StrictRepository] (I/O)
+    └── [StrictSecondaryAdapter] (I/O)
 
-5) System Flow (Administrative Path)
-
-Use this for:
-	•	Migrations
-	•	Backfills
-	•	Repair tools
-	•	Data inspection
-	•	Raw queries
-
-Sequence
-	1.	System Entry
-Core creates SystemCtx.
-	2.	Execution
-
-	•	Can access raw adapters
-	•	Can run administrative operations
-
-	3.	Exit
-
-	•	Full trace
-	•	Full audit log
+If the trace tree appears flat or recursive (e.g., Repository calling UseCase), it indicates an architectural violation.
 
 ⸻
 
-Rule
+6) Anti-Patterns (Forbidden Flows)
 
-System flows must never be callable from external ingress.
-
-⸻
-
-6) Policy Execution Flow (Inner Loop)
-
-This is the “engine room.”
-
-Sequence
-	1.	Component calls Policy.execute
-	2.	Policy starts span
-	3.	Domain logic runs
-	4.	Evolutions proposed
-	5.	For each evolution:
-	•	Token authorizes
-	•	BaseValueObject.evolve applies change
-	•	Provenance recorded
-	6.	Policy ends span
+The framework is designed to make these flows difficult or impossible:
+- **Direct DB Access from UseCase:** Must go through a Repository.
+- **I/O inside a Policy:** Policies must remain pure and deterministic.
+- **Mutation without a Token:** `StrictEntity` evolution requires a `PolicyToken` from `scope.authorize()`.
+- **Nested Transactions:** Opening a `UnitOfWork` inside another is a terminal error.
 
 ⸻
 
-Guarantees
-	•	No I/O
-	•	No time access
-	•	No randomness
-	•	No persistence
+7) Failure & Recovery
 
-Only logic and data.
-
-⸻
-
-7) Persistence Flow
-
-Read
-
-InternalCtx → Repository.get
-	•	Allowed
-	•	Traced
-	•	Logged
-
-Write
-
-CommandCtx → Repository.save
-	•	Requires CommitCap
-	•	Traced
-	•	Logged
-	•	Emits domain events
-
-Raw
-
-SystemCtx → Repository.raw
-	•	Requires RawQueryCap
-	•	Fully audited
-
-⸻
-
-8) Event Emission Flow (CQRS / Eventing)
-
-Optional but canonical.
-
-Sequence
-	1.	Repository.save succeeds
-	2.	Domain event constructed from evolution history
-	3.	Event published
-	4.	Event handler runs as Internal Command Flow
-
-⸻
-
-Rule
-
-Event handlers must not call external ingress.
-
-They are inside the system.
-
-⸻
-
-9) Failure Flow
-
-Domain Failure
-	•	Policy throws validation error
-	•	Component logs failure
-	•	UseCase logs boundary error
-	•	Trace closes
-
-Infrastructure Failure
-	•	Secondary Adapter throws
-	•	Span records exception
-	•	Component aborts
-	•	UseCase logs failure
-
-⸻
-
-Rule
-
-Errors are never swallowed.
-They are always:
-	•	Logged
-	•	Traced
-	•	Returned or escalated
-
-⸻
-
-10) Trust Boundary Flow
-
-Promotions
-
-External → Internal
-Means:
-	•	Input validated
-	•	Types trusted
-	•	Structure guaranteed
-
-Internal → Command
-Means:
-	•	State mutation allowed
-	•	Commit authorized
-
-Internal → System
-Means:
-	•	Administrative authority granted
-
-⸻
-
-Demotion
-
-Does not exist.
-New context must be created instead.
-
-⸻
-
-11) Anti-Flows (Forbidden Patterns)
-
-These flows must never exist:
-	•	ExternalCtx → Repository.save
-	•	Policy → Secondary Adapter
-	•	Policy → Clock
-	•	Secondary Adapter → Component
-	•	Repository → Policy
-	•	UseCase → Policy
-
-If any of these appear, architecture has been violated.
-
-⸻
-
-12) Multi-Step Workflow Flow
-
-For complex processes:
-
-Each step is:
-	•	A complete Internal Command Flow
-	•	Emits an event
-	•	Next step consumes event
-
-No step calls another step directly.
-
-⸻
-
-13) Trace as Architecture
-
-Every valid flow must produce a trace that visually matches this hierarchy:
-
-Root UseCase
-→ Application Component
-→ Domain Policy
-→ Secondary Adapter or Repository
-
-If the trace graph does not look like this, the architecture is wrong.
-
-⸻
-
-14) Mental Model
-
-Think of Ṛta as a river system:
-	•	Ingress is rain
-	•	Context is elevation
-	•	Policies are channels
-	•	Repositories are lakes
-	•	Events are tributaries
-	•	System tools are dams
-
-Water never flows uphill.
-
-⸻
-
-15) Definition of Done
-
-This document is complete when:
-	•	Every execution path in the system maps to one of these flows
-	•	No forbidden flow is possible without bypassing the core
-	•	Traces visually confirm boundaries
-	•	Capabilities align with promotions
-	•	Event flows do not shortcut orchestration
+- **Validation Errors:** Caught at the `StrictUseCase` boundary; results in a `400 Bad Request` or equivalent.
+- **Authorization Errors:** Caught by `OperationScope` or `PolicyToken` checks; results in `403 Forbidden`.
+- **Infrastructure Failures:** Caught and recorded in the trace; transaction is rolled back via `UnitOfWork.rollback()`.

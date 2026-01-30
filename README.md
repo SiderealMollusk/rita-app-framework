@@ -1,28 +1,33 @@
-# Rita App Framework
+# Ṛta App Framework
 
 **A Governed Execution Environment for LLM-Generated Applications.**
 
-The Rita Framework is designed to turn TypeScript into a Domain-Specific Language (DSL) for "Governed Execution". It forces even "lazy" agents (like LLMs) to write code that is safe, attributable, and architecturally sound.
+The Ṛta Framework turns TypeScript into a Domain-Specific Language (DSL) for "Governed Execution". It forces even "lazy" agents (like LLMs) to write code that is safe, attributable, and architecturally sound.
 
 ## Core Philosophy
 
-1.  **Immutability**: Domain objects (`BaseValueObject`, `BaseEntity`) are immutable by default.
-2.  **Attribution**: Every state change `_evolve()` requires a `PolicyToken` and a `Reason`, creating an unbroken audit trail.
-3.  **Traceability**: Every execution unit (`BaseComponent`) automatically manages Distributed Tracing (`traceId`) and Error Recording.
-4.  **Separation of Concerns**: We enforce a strict Hexagonal Architecture.
+1.  **Immutability**: Domain objects are immutable by default.
+2.  **Attribution**: Every state change requires an authorized `PolicyToken` and a `Reason`.
+3.  **Traceability**: Every operation is governed by an `OperationScope` with mandatory distributed tracing.
+4.  **Strict Enforcement**: Architectural boundaries are enforced via types and automated scans.
 
-## Architecture (The Glossary)
+## Documentation
 
-The framework is built on strict definitions. See [docs/GLOSSARY.md](docs/GLOSSARY.md) for the authoritative dictionary.
+The authoritative documentation is located in the [docs/architecture/](docs/architecture/) directory.
 
-*   **Hexagon**: The boundary of a Feature.
-*   **Interaction**: A Use Case (e.g., `PlaceOrder`).
-*   **Gateway**: A Secondary Adapter (e.g., `OrderRepository`).
-*   **Policy**: Pure Domain Logic (e.g., `PriorityPolicy`).
+- **[Table of Contents](docs/architecture/TableOfContents.md)**: Your starting point for all framework documentation.
+- **[The Glossary](docs/architecture/GLOSSARY.md)**: Authoritative dictionary of terminology.
+- **[Parts List](docs/architecture/10_parts_list.md)**: Inventory of all core concepts.
+- **[Contracts & Boundaries](docs/architecture/20_contracts_and_boundaries.md)**: The "Law" of the framework.
 
-## Roadmap
+## Architecture
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for the active development plan.
+Ṛta enforces a **Strict Hexagonal Architecture** using the `OperationScope` primitive and the `Strict*` suite of base classes.
+
+- **Hexagon**: The boundary of a Feature.
+- **Interaction**: A Use Case (e.g., `PlaceOrder`).
+- **Gateway**: A Secondary Adapter (e.g., `OrderRepository`).
+- **Policy**: Pure Domain Logic (e.g., `PriorityPolicy`).
 
 ## Quick Start
 
