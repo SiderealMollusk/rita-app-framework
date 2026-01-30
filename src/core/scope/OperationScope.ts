@@ -62,7 +62,7 @@ export class OperationScope {
      * The ONLY way to obtain a PolicyToken.
      * Executes the action within the authorized context of the policy.
      */
-    authorize<T>(policy: DecisionPolicy, action: (token: PolicyToken) => T): T {
+    authorize<T>(policy: DecisionPolicy<any, any>, action: (token: PolicyToken) => T): T {
         // In the future, this is where we check if 'policy' is allowed for this 'user'
         
         // Mint the token using the hidden internal factory
