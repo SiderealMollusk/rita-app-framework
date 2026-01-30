@@ -16,6 +16,7 @@ export interface Provenance<T> {
 
 /**
  * Immutable domain state with provenance history.
+ * @deprecated Use StrictValueObject instead for better safety and enforcement.
  */
 export abstract class BaseValueObject<TData> {
     public readonly _data: Readonly<TData>;

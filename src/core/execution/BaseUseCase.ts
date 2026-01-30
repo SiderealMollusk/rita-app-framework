@@ -7,6 +7,7 @@ import { Logger } from '../telemetry/Logger';
 /**
  * Orchestrates domain logic and side effects.
  * Acts as the application layer boundary.
+ * @deprecated Use StrictUseCase instead for better safety and enforcement.
  */
 export abstract class BaseUseCase<TInput, TOutput> {
     protected readonly name: string;

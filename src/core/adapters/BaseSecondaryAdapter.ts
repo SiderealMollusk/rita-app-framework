@@ -5,6 +5,7 @@ import { SecondaryPort } from '../ports/SecondaryPort';
 
 /**
  * Base class for external system adapters (API, queue, etc.).
+ * @deprecated Use StrictSecondaryAdapter instead for better safety and enforcement.
  */
 export abstract class BaseSecondaryAdapter implements SecondaryPort {
     protected readonly name: string;

@@ -21,7 +21,7 @@ const scenario: Scenario = {
             params: { ticketId: 'ticket-1' },
             expect: {
                 status: 'RECEIVED',
-                items: [{ name: 'Burger', status: 'RECEIVED' }]
+                items: [{ name: 'Burger', status: 'RECEIVED', course: 1 }]
             }
         },
         {
@@ -36,7 +36,7 @@ const scenario: Scenario = {
             params: { ticketId: 'ticket-1' },
             expect: {
                 status: 'COOKING',
-                items: [{ name: 'Burger', status: 'COOKING' }]
+                items: [{ name: 'Burger', status: 'COOKING', course: 1 }]
             }
         },
         {
@@ -51,7 +51,7 @@ const scenario: Scenario = {
             params: { ticketId: 'ticket-1' },
             expect: {
                 status: 'COMPLETED',
-                items: [{ name: 'Burger', status: 'COMPLETED' }]
+                items: [{ name: 'Burger', status: 'COMPLETED', course: 1 }]
             }
         },
         {
@@ -66,7 +66,7 @@ const scenario: Scenario = {
             params: { ticketId: 'ticket-2' },
             expect: {
                 status: 'RECEIVED',
-                items: [{ name: 'Fries', status: 'RECEIVED' }]
+                items: [{ name: 'Fries', status: 'RECEIVED', course: 1 }]
             }
         }
     ]

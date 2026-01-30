@@ -5,16 +5,16 @@ export * from './context/ExternalCtx';
 export * from './context/InternalCtx';
 export * from './context/CommandCtx';
 export * from './context/SystemCtx';
-export * from './context/capabilities/CommitCap';
-export * from './context/capabilities/RawQueryCap';
-export * from './context/capabilities/AdminCap';
+export { CommitCap } from './context/capabilities/CommitCap';
+export { RawQueryCap } from './context/capabilities/RawQueryCap';
+export { AdminCap } from './context/capabilities/AdminCap';
 export * from './context/promotion/ContextFactory';
 
 // Domain
 export * from './domain/BaseValueObject';
 export * from './domain/BaseEntity';
 export * from './domain/DecisionPolicy';
-export * from './domain/PolicyToken';
+export { PolicyToken } from './domain/PolicyToken';
 export * from './domain/RitaClock';
 export * from './domain/RitaId';
 export * from './domain/SimulatedClock';
@@ -68,3 +68,9 @@ export * from './telemetry/Span';
 
 // Ports
 export * from './ports/PrimaryPort';
+
+// Strict Pattern
+export * from '../patterns/strict';
+
+// Scope
+export * from './scope/OperationScope';
