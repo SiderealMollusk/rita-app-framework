@@ -1,86 +1,68 @@
 import { BaseCtx } from '../context/BaseCtx';
-import { CommandCtx } from '../context/CommandCtx';
+
+import { UnitOfWork } from '../ports/UnitOfWorkPort';
 import { PolicyToken, MINT_SYMBOL } from '../domain/PolicyToken';
 import { DecisionPolicy } from '../domain/DecisionPolicy';
 import { Tracer } from '../telemetry/Tracer';
-import { UnitOfWork } from '../ports/UnitOfWorkPort';
-import { EventBusPort } from '../ports/EventBusPort';
 
 /**
- * Mutable container for services scoped to this operation.
- */
-export interface ServiceBag {
-    uow?: UnitOfWork;
-    bus?: EventBusPort;
-}
-
-/**
- * The Centralized Unit of Execution.
- * 
- * - Holds Identity (Ctx)
- * - Holds Services (UoW, Bus)
- * - Holds Authority (PolicyToken Issuer)
+ * The Unit of Execution.
+ * Holds Identity (immutable) and Mechanism (mutable/uow).
  */
 export class OperationScope {
     private constructor(
         public readonly context: BaseCtx,
-        public readonly services: ServiceBag = {}
-    ) {}
+        private readonly _uow?: UnitOfWork
+    ) { }
 
     /**
-     * Creates a root scope for a request.
+     * Creates a scope. 
+     * If uow is provided, this is a Write Scope.
      */
-    static create(context: BaseCtx, services?: ServiceBag): OperationScope {
-        return new OperationScope(context, services);
+    static create(context: BaseCtx, uow?: UnitOfWork): OperationScope {
+        return new OperationScope(context, uow);
     }
 
+
     /**
-     * Returns the Unit of Work if available in this scope.
-     * Throws if no UoW is present (e.g. in a read-only scope).
+     * Returns the Active UnitOfWork.
+     * Throws if this is a Read-Only Scope.
      */
     get uow(): UnitOfWork {
-        const uow = this.services.uow || (this.context as CommandCtx).uow;
-        if (!uow) {
-            throw new Error("UnitOfWork not available in this scope. Ensure you are in a Command context.");
+        if (!this._uow) {
+            throw new Error("Write Operation Attempted in Read-Only Scope (No Active UoW)");
         }
-        return uow;
+        return this._uow;
     }
 
     /**
-     * Forks the scope for a sub-task.
-     * Preserves Trace ID, generates new Span ID.
+     * Checks if this scope has write authority.
+     */
+    hasWriteAuthority(): boolean {
+        return !!this._uow;
+    }
+
+    /**
+     * Forks the scope (Conceptually).
+     * In V1, this creates a child span but maintains the SAME UoW (if present).
+     * Nested UoWs are banned, so we share the single UoW down the stack.
      */
     fork(operationName: string): OperationScope {
-        // Create a new context with the same TraceID but new SpanID (via Tracer)
         const subSpan = Tracer.startSpan(operationName, this.context);
-        
-        // In a real OpenTelemetry setup, we'd extract the new context from the span
-        // For now, we manually clone and update the spanId (mock logic)
-        const newCtx: BaseCtx = {
-            ...this.context,
-            // @ts-ignore - Assuming context has spanId logic or we just rely on parent link
-        };
+        // Note: In real impl, we'd update context.traceId/spanId here.
+        // For simulation, we assume context is reused but traced via Span.
 
-        const forkScope = new OperationScope(newCtx, this.services);
-        
-        // Ensure span ends when scope "completes" - this is tricky in async, 
-        // usually managed by the caller. 
-        // For now, we just indicate logical separation.
-        subSpan.end(); 
-        
-        return forkScope;
+        // We pass 'this._uow' because the child scope shares the parent's transaction
+        return new OperationScope(this.context, this._uow);
     }
 
     /**
      * The ONLY way to obtain a PolicyToken.
-     * Executes the action within the authorized context of the policy.
      */
     authorize<T>(policy: DecisionPolicy<any, any>, action: (token: PolicyToken) => T): T {
-        // In the future, this is where we check if 'policy' is allowed for this 'user'
-        
-        // Mint the token using the hidden internal factory
+        // Future: Check policy.isAllowed(this.context.principal)
         const token = (PolicyToken as any)[MINT_SYMBOL]();
-        
         return action(token);
     }
 }
+

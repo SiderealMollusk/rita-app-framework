@@ -1,7 +1,7 @@
 import { BasePrimaryAdapter } from '../../core/adapters/BasePrimaryAdapter';
 import { OperationScope } from '../../core/scope/OperationScope';
 import { ContextFactory } from '../../core/context/promotion/ContextFactory';
-import { UnitOfWork } from '../../core/ports/UnitOfWorkPort';
+import { UnitOfWorkFactoryPort } from '../../core/ports/UnitOfWorkFactoryPort';
 import { Strict } from './types';
 
 /**
@@ -10,6 +10,12 @@ import { Strict } from './types';
  */
 export abstract class StrictPrimaryAdapter extends BasePrimaryAdapter implements Strict {
     public readonly _strictVersion = 1;
+
+    constructor(
+        protected readonly uowFactory: UnitOfWorkFactoryPort
+    ) {
+        super();
+    }
 
     /**
      * Creates an OperationScope for a query (Read-only).
@@ -22,11 +28,18 @@ export abstract class StrictPrimaryAdapter extends BasePrimaryAdapter implements
 
     /**
      * Creates an OperationScope for a command (Read-Write).
+     * Opens a UoW using the Factory.
      */
-    protected createCommandScope(principal: string, uow: UnitOfWork, traceId?: string): OperationScope {
+    protected async createCommandScope(principal: string, traceId?: string): Promise<OperationScope> {
         const external = this.createExternalCtx(traceId);
         const internal = ContextFactory.promoteToInternal(external, principal);
-        const command = ContextFactory.promoteToCommand(internal, uow);
-        return OperationScope.create(command, { uow });
+        // Promote to Command (Gain CommitCap) - Note: separate from UoW
+        const commandCtx = ContextFactory.promoteToCommand(internal);
+
+        // Open UoW (Law 2 & 5 Enforcement)
+        const uow = await this.uowFactory.open(commandCtx);
+
+        return OperationScope.create(commandCtx, uow);
     }
 }
+

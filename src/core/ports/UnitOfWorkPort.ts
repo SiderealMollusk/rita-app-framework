@@ -9,9 +9,16 @@ export interface UnitOfWork {
     close(): Promise<void>;
 }
 
+import { UnitOfWorkFactoryPort } from './UnitOfWorkFactoryPort';
+
 /**
  * Factory for creating Units of Work.
+ * @deprecated Use UnitOfWorkFactoryPort instead.
  */
-export interface UnitOfWorkPort {
+export interface UnitOfWorkPort extends UnitOfWorkFactoryPort {
+    /**
+     * @deprecated Use open(ctx) instead.
+     */
     start(ctx: CommandCtx): Promise<UnitOfWork>;
 }
+

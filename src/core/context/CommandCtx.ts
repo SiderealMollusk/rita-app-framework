@@ -6,5 +6,10 @@ import { UnitOfWork } from '../ports/UnitOfWorkPort';
  */
 export interface CommandCtx extends BaseCtx {
     readonly trustLevel: TrustLevel.Command;
+    /**
+     * @deprecated Use OperationScope.uow instead.
+     * Legacy field for backward compatibility.
+     */
     readonly uow?: UnitOfWork;
 }
+

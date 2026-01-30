@@ -18,8 +18,19 @@ describe('OperationScope', () => {
     it('should create a scope', () => {
         const scope = OperationScope.create(mockCtx);
         expect(scope.context).toBe(mockCtx);
-        expect(scope.services).toEqual({});
+        expect(scope.hasWriteAuthority()).toBe(false);
+        expect(() => scope.uow).toThrow(); // Should be read-only
     });
+
+    it('should create a write scope', () => {
+        const mockUoW = {} as any;
+        const scope = OperationScope.create(mockCtx, mockUoW);
+        expect(scope.hasWriteAuthority()).toBe(true);
+        expect(scope.uow).toBe(mockUoW);
+    });
+
+
+
 
     it('should fork a scope', () => {
         const scope = OperationScope.create(mockCtx);
@@ -28,8 +39,10 @@ describe('OperationScope', () => {
         const forkScope = scope.fork(forkName);
 
         expect(forkScope.context.traceId).toBe(mockCtx.traceId);
-        expect(forkScope.services).toBe(scope.services);
+        // Fork should inherit UoW state (checked via getter throw if missing)
+        expect(() => forkScope.uow).toThrow();
     });
+
 
     it('should authorize a policy action', () => {
         const scope = OperationScope.create(mockCtx);

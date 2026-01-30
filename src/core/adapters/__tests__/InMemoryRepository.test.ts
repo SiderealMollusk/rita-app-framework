@@ -58,4 +58,29 @@ describe('InMemoryRepository', () => {
         const found = await repo.getById(internalCtx, '1');
         expect(found).toBeNull();
     });
+
+    it('should register participant with UoW and handle rollback', async () => {
+        const mockRegister = jest.fn();
+        const mockUoWCtx = {
+            ...commandCtx,
+            uow: {
+                registerParticipant: mockRegister
+            }
+        } as any;
+
+        const entity = new MockEntity('1', 'T1');
+        await repo.save(mockUoWCtx, entity);
+
+        expect(mockRegister).toHaveBeenCalled();
+        const participant = mockRegister.mock.calls[0][0];
+
+        // Execute commit
+        await participant.commit();
+        const found = await repo.getById(internalCtx, '1');
+        expect(found).toBe(entity);
+
+        // Execute rollback (noop but needs coverage)
+        await participant.rollback();
+    });
 });
+

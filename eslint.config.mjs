@@ -24,8 +24,13 @@ export default tseslint.config(
                 {
                     "selector": "CallExpression[callee.object.name='Date'][callee.property.name='now']",
                     "message": "Do not use 'Date.now()'. Use 'RitaClock.timestamp()' instead or 'RitaClock.now().getTime()'."
+                },
+                {
+                    "selector": "NewExpression[callee.name=/^Strict(Entity|UseCase|Repository|UnitOfWork)/]",
+                    "message": "Do not use 'new Strict...()'. Use the static '.create()' factory method or the UnitOfWorkFactory to ensure safety."
                 }
             ],
+
             // Architectural Boundaries
             "no-restricted-imports": [
                 "error",

@@ -67,4 +67,11 @@ describe('StartCookingL3', () => {
 
         await expect(startCooking2.run({ ticketId })).resolves.not.toThrow();
     });
+
+    it('should throw if ticket not found', async () => {
+        await expect(startCooking.run({ ticketId: 'missing-id' }))
+            .rejects.toThrow('KitchenTicket with ID missing-id not found');
+    });
 });
+
+
