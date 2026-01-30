@@ -1,98 +1,52 @@
 # Ṛta Architecture Documentation
-keep this true no matter what.
-it can be changed, but it is **sacred** source of truth.
+The sacred source of truth for the Ṛta Framework.
 
-10_parts_list.md
+## Core Encyclopedia
 
-What this is: The noun list.
-Purpose: A dead-simple inventory of what exists in the system.
-Top: The sacred table (30-second read).
-Bottom: Verbose breakdown per part.
+[10_parts_list.md](10_parts_list.md)
+The noun list. An inventory of all core concepts and patterns.
 
-Question it answers:
+[20_contracts_and_boundaries.md](20_contracts_and_boundaries.md)
+The law. Defines the May-Call matrix, trust gating, and repository constraints.
 
-“What are the pieces I can work with?”
+[30_core_api.md](30_core_api.md)
+The promise. The stable surface of Ṛta's Core that app code relies on.
 
-This is the one agents and humans will open most.
+[40_execution_flows.md](40_execution_flows.md)
+The movie. Canonical sequences for commands, queries, and background jobs.
 
-⸻
-
-20_contracts_and_boundaries.md
-
-What this is: The law.
-Purpose: May-call matrix, forbidden patterns, trust gating rules, capability requirements, repository constraints.
-Question it answers:
-
-“What is allowed and what is forbidden?”
-
-This is where architecture becomes enforceable.
+[50_enforcement_playbook.md](50_enforcement_playbook.md)
+The teeth. How architectural rules are mechanically enforced via types and tests.
 
 ⸻
 
-30_core_api.md
+## Supporting References
 
-What this is: The promise.
-Purpose: The stable surface of Ṛta's Core — what app code can rely on across versions.
-Question it answers:
+[GLOSSARY.md](GLOSSARY.md)
+Authoritative dictionary of framework terminology.
 
-“What can I depend on not changing?”
+[LOGS_SPEC.md](LOGS_SPEC.md)
+Specification for structured, governed logging.
 
-This is what makes packaging and versioning possible later.
-
-⸻
-
-40_execution_flows.md
-
-What this is: The movie.
-Purpose: Canonical sequences for:
-	•	External request
-	•	Query
-	•	Command/write
-	•	Async job
-	•	Admin/system task
-	•	Failure path
-
-Question it answers:
-
-“What actually happens, step by step?”
-
-This is the “mental debugger.”
+[UI_VIEWER_PROMPT.md](UI_VIEWER_PROMPT.md)
+Guidelines for generating framework-compliant UI and visualization tools.
 
 ⸻
 
-50_enforcement_playbook.md
+## Architecture Decision Records (ADRs)
 
-What this is: The teeth.
-Purpose: How rules become real:
-	•	forbidden API scans
-	•	boundary import checks
-	•	capability runtime guards
-	•	test harness design
-	•	allowlist process
+Historical record of major design decisions, now implemented in the core.
 
-Question it answers:
-
-“How do we stop ourselves (and LLMs) from cheating?”
-
-This is what turns Ṛta from a style guide into a framework.
+- [ADR 001: OperationScope](adr/ADR-001-Operation-Scope.md)
+- [ADR 002: Ingress Hexagons](adr/ADR-002-Ingress-Hexagons.md)
+- [ADR 003: Strict Architecture Suite](adr/ADR-003-Strict-Architecture.md)
+- [ADR 004: Hexagon Archetypes](adr/ADR-004-Hexagon-Archetypes.md)
+- [ADR 005: Framework Contracts](adr/ADR-005-Contracts.md)
 
 ⸻
 
-60_peripheral_tooling.md (your instinct — and it’s a good one)
+## High-Level Overviews
 
-What this is: The orbit.
-Purpose: A curated list of non-core but high-leverage tools that plug into Ṛta.
-
-Think:
-	•	tracing backends
-	•	log stores
-	•	dashboards
-	•	job runners
-	•	experiment tracking
-	•	doc systems
-	•	codegen helpers
-	•	security scanners
-
-Question it answers:
-
-“What makes this framework pleasant to live in?”
+- [SAD.md](SAD.md): Software Architecture Document.
+- [CONOPS.md](CONOPS.md): Concept of Operations.
+- [NFR.md](NFR.md): Non-Functional Requirements.

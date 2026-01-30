@@ -1,392 +1,103 @@
 30 — Core API (Ṛta Framework)
 
-This document defines the non-negotiable core of Ṛta.
-Everything else in the framework is an extension, adapter, or specialization of this core.
+This document defines the stable, non-negotiable surface of the Ṛta Core.
 
-Goal:
-If you freeze this API, you freeze the architecture itself.
+Goal: Provide a consistent set of primitives that enforce the framework's architecture across all implementations.
 
 ⸻
 
-1) Purpose of the Core
+1) The Execution Kernel: `OperationScope`
 
-The Core exists to enforce:
-	•	Execution governance
-	•	Trust boundaries
-	•	Capability-based authority
-	•	Determinism boundaries
-	•	Provenance and traceability
+The `OperationScope` is the primary interface for all application logic.
 
-It is intentionally:
-	•	Small
-	•	Boring
-	•	Stable
-	•	Hard to change
+```typescript
+export class OperationScope {
+    readonly context: BaseCtx;
+    readonly uow: UnitOfWork;
 
-Most framework evolution should happen outside this layer.
+    // Authorizes domain state changes
+    authorize<T>(policy: DecisionPolicy, action: (token: PolicyToken) => T): T;
 
-⸻
-
-2) Core Responsibilities
-
-The Core owns:
-	•	Context construction and promotion
-	•	Capability construction and validation
-	•	Execution wrappers (spans, logs, errors)
-	•	Domain mutation authorization
-	•	Time and randomness sources
-	•	Boundary enforcement hooks
-
-The Core does NOT own:
-	•	Business logic
-	•	Domain models
-	•	Infrastructure clients
-	•	Persistence implementations
-	•	UI or transport concerns
+    // Creates a sub-trace
+    fork(name: string): OperationScope;
+}
+```
 
 ⸻
 
-3) Core Modules (Minimum Set)
-
-These modules form the irreducible core:
-
-Context System
-	•	ContextFactory
-	•	ExternalCtx
-	•	InternalCtx
-	•	CommandCtx
-	•	SystemCtx
-
-Capability System
-	•	Capability (base type)
-	•	CapabilityBag
-	•	CommitCap
-	•	RawQueryCap
-	•	AdminCap
-
-Execution System
-	•	Tracer
-	•	Span
-	•	Logger
-	•	BaseUseCase
-	•	BaseComponent
-
-Domain Safety
-	•	BaseValueObject
-	•	BaseEntity
-	•	DecisionPolicy
-	•	PolicyToken
-
-Determinism Controls
-	•	RitaClock (implements ClockPort)
-	•	RandomSource (optional but recommended)
-
-Enforcement
-	•	BoundaryAssert
-	•	ForbiddenScan (test-time tool)
-	•	KernelError types
-
-⸻
-
-4) Context API
-
-Context Types
-
-ExternalCtx
-Represents untrusted input from the outside world.
-
-Properties:
-	•	traceId
-	•	trustLevel = external
-	•	capabilities = none
-
-InternalCtx (and QueryCtx)
-Represents trusted, deterministic execution.
-
-Properties:
-	•	traceId
-	•	trustLevel = internal
-	•	capabilities = read-only
-
-CommandCtx
-InternalCtx + write authority.
-
-Properties:
-	•	trustLevel = command
-	•	capabilities include CommitCap
-
-SystemCtx
-Administrative execution.
-
-Properties:
-	•	trustLevel = system
-	•	capabilities include AdminCap, RawQueryCap
-
-⸻
+2) Context & Security API
 
 ContextFactory
-
-The only module allowed to create or promote contexts.
-
-Functions:
-	•	createExternal()
-	•	promoteToInternal(externalCtx)
-	•	promoteToCommand(internalCtx)
-	•	promoteToSystem(internalCtx)
-
-Rules:
-	•	Promotion is monotonic (never downgrade).
-	•	Promotion always emits a trace annotation.
-	•	Promotion is explicit and visible in logs.
-
-⸻
-
-5) Capability API
-
-Capability Base
-
-A capability is:
-	•	A real object instance (not a string, not a flag)
-	•	Non-serializable
-	•	Constructed only by the Core
+The only legal way to create and promote execution contexts.
+	•	`createExternal()`
+	•	`promoteToInternal()`
+	•	`promoteToCommand()`
+	•	`elevateToSystem()`
 
 CapabilityBag
-
-Attached to Context.
-Supports:
-	•	has(capabilityType)
-	•	require(capabilityType)
-
-Standard Capabilities
-
-CommitCap
-Authorizes durable state changes.
-
-RawQueryCap
-Authorizes raw database queries.
-
-AdminCap
-Authorizes system-level operations.
+Stored in the context; holds unforgeable tokens of authority.
+	•	`CommitCap`: Required for repository writes.
+	•	`RawQueryCap`: Required for admin-level raw DB queries.
+	•	`PolicyToken`: Required for domain evolution.
 
 ⸻
 
-6) Execution API
+3) Domain Safety API
 
-BaseUseCase
-
-Role:
-	•	Ingress boundary
-	•	Context root
-	•	Trust promotion point
-
-Guarantees:
-	•	Creates ExternalCtx (or appropriate start context)
-	•	Wraps execution in root span
-	•	Logs failure at boundary
-	•	Only calls Application layer (BaseComponent)
-
-⸻
-
-BaseComponent
-
-Role:
-	•	Application orchestration unit
-
-Guarantees:
-	•	Always runs inside a span
-	•	Always logs start/end/failure
-	•	Receives propagated context
-	•	Calls policies and adapters only
-
-⸻
-
-7) Domain Mutation API
-
-DecisionPolicy
-
-Role:
-	•	Encapsulates business logic
-	•	Proposes evolutions
-	•	Holds PolicyToken privately
-
-Rules:
-	•	Cannot perform I/O
-	•	Cannot access time directly
-	•	Cannot mutate domain directly
-
-⸻
+BaseEntity / BaseValueObject
+Immutable state containers with built-in validation and provenance.
 
 PolicyToken
+Proof of authority for mutation. Its constructor is private and can only be accessed via `OperationScope.authorize()`.
 
-Role:
-	•	Proof of authority for mutation
-	•	Non-exportable constructor
-	•	Held only by DecisionPolicy
-
-⸻
-
-BaseValueObject
-
-Role:
-	•	Immutable state
-	•	Provenance recording
-	•	Enforced evolution path
-
-Rules:
-	•	All state changes go through evolve
-	•	evolve requires PolicyToken
-	•	evolve requires reason
-	•	Validation always runs on new state
+DecisionPolicy
+Pure logic units that inspect state and context to propose `Evolutions`.
 
 ⸻
 
-8) Time and Randomness API
+4) Application Patterns API (The "Strict" Suite)
+
+Located in `src/patterns/strict/`, these are the recommended base classes.
+
+StrictUseCase
+Managed execution with Zod validation, tracing, and mandatory scope.
+
+StrictEntity
+Domain entities that enforce the use of `PolicyTokens` for all state changes.
+
+StrictPrimaryAdapter
+Helpers for creating `OperationScope` from external requests.
+
+StrictRepository
+Interfaces for data access that are coupled to the `UnitOfWork` in the active scope.
+
+⸻
+
+5) Observability API
+
+Tracer
+Managed spans that automatically propagate `traceId` and link parent/child execution.
+
+Logger
+Structured logging that requires an active context and uses standardized tags (`[Evolution]`, `[Component: Start]`, etc.).
+
+⸻
+
+6) Determinism API
 
 RitaClock
+The authoritative time source. Implements `ClockPort`.
+	•	`now()`: Returns the current (possibly simulated) date.
 
-Role:
-	•	The only time source allowed in domain and policy code. Implements `ClockPort`.
-
-Functions:
-	•	now()
-
-Rules:
-	•	Date.now and new Date are forbidden outside adapters/core
-	•	Clock access must be explicit in core imports
+SimulatedClock / SimulatedRandom
+Used in tests to ensure 100% deterministic and reproducible execution.
 
 ⸻
 
-RandomSource (Optional but recommended)
+7) Enforcement API
 
-Role:
-	•	Controlled randomness for simulations and probabilistic policies
-
-Functions:
-	•	next()
-	•	nextInt(range)
-
-Rules:
-	•	Math.random forbidden in domain and policy layers
-
-⸻
-
-9) Persistence Safety API
-
-BaseRepository (Core-owned interface)
-
-Rules:
-	•	Write methods require CommandCtx
-	•	Read methods accept InternalCtx
-	•	Raw methods require SystemCtx + RawQueryCap
-
-Required Shape:
-	•	getById(ctx, id)
-	•	save(ctx, entity)
-	•	findByIndex(ctx, field, value)
-
-Explicitly Forbidden:
-	•	query(ctx, string)
-	•	exec(ctx, sql)
-
-⸻
-
-10) Gateway Safety API
-
-BaseSecondaryAdapter
-
-Role:
-	•	External system adapter
-
-Guarantees:
-	•	Wraps all calls in spans
-	•	Logs success/failure
-	•	Never calls back into domain/application layers
-
-⸻
-
-11) Enforcement Hooks
+ForbiddenScan
+A test-time scanner that blocks banned APIs (like `Math.random` or `Date.now`) in the domain layer.
 
 BoundaryAssert
-
-Runtime guard functions:
-	•	assertNotExternal(ctx)
-	•	requireCommit(ctx)
-	•	requireSystem(ctx)
-
-Called inside:
-	•	Repositories
-	•	Policies
-	•	System tools
-
-⸻
-
-ForbiddenScan (Test-Time Structural Enforcement)
-
-Scans for:
-	•	Date.now in domain/policy
-	•	Math.random in domain/policy
-	•	DB drivers outside repositories
-	•	Raw queries outside system persistence
-	•	Direct imports across forbidden layers
-
-Failure mode:
-	•	Hard test failure
-	•	No warnings
-	•	No soft mode
-
-⸻
-
-12) Core Error Types
-
-Standardized errors:
-	•	UnauthorizedContextError
-	•	MissingCapabilityError
-	•	DeterminismViolationError
-	•	BoundaryViolationError
-	•	UnauthorizedEvolutionError
-
-Purpose:
-	•	Make architectural violations louder than business bugs
-
-⸻
-
-13) Stability Promise
-
-Core code changes require:
-	•	Migration notes
-	•	Contract updates
-	•	Test updates
-	•	Explicit version bump
-
-If this layer churns, the framework loses its spine.
-
-⸻
-
-14) Design Philosophy
-
-The Core is not:
-	•	Flexible
-	•	Friendly
-	•	Expressive
-
-It is:
-	•	Predictable
-	•	Enforceable
-	•	Boring
-	•	Hard to bypass
-
-Everything else can be creative.
-This layer exists to make “doing the wrong thing” mechanically difficult.
-
-⸻
-
-15) Definition of Done
-
-This document is complete when:
-	•	Every core module exists as a file
-	•	Every contract maps to a runtime guard, type lock, or test scan
-	•	Promotion paths are explicit in code
-	•	Capabilities cannot be forged or serialized
-	•	Domain code cannot mutate without a policy
-	•	Persistence cannot write without CommandCtx
-    
+Runtime guards that throw `KernelError` subclasses (e.g., `UnauthorizedError`, `ForbiddenError`) when architectural rules are violated.
