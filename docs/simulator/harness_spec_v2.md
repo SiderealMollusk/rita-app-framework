@@ -21,6 +21,7 @@ type SimulationWorld = {
   // The Laws of Physics
   clock: SimulatedClock;
   random: SimulatedRandom;
+  idGen: IdGeneratorPort;
   
   // The System Under Test
   kernel: Kernel; // The Hexagon
@@ -60,7 +61,7 @@ interface SimulatedClock extends ClockPort {
   /**
    * Schedules a task for the future (replaces setTimeout).
    */
-  schedule(callback: () => void, delayMs: number): CancelToken;
+  schedule(callback: () => void, delayMs: number): void;
 }
 ```
 
@@ -68,12 +69,19 @@ interface SimulatedClock extends ClockPort {
 We do not use `Math.random()`. We use a seeded generator that allows us to replay "bad luck".
 
 ```typescript
-interface SimulatedRandom extends RandomPort {
+interface SimulatedRandom {
   /** Returns a float between 0-1, deterministically based on seed + call count */
   next(): number;
-  
-  /** Returns true if a chaotic failure should occur based on configured probability */
-  shouldFail(probability: number): boolean;
+}
+```
+
+### C. Deterministic Identity
+We use an `IdGeneratorPort` to ensure that entities and traces have predictable IDs.
+
+```typescript
+interface IdGeneratorPort {
+  /** Returns a prefixed ID based on an internal counter */
+  generate(prefix?: string): string;
 }
 ```
 
@@ -163,6 +171,7 @@ class ScenarioRunner {
           break;
         case 'act':
           await actorMap.get(step.actor).dispatch(step.intent, step.payload);
+          await this.world.settle(); // Ensure all 0ms tasks and microtasks are processed
           break;
         case 'assert':
           await this.verify(step.query, step.expect);

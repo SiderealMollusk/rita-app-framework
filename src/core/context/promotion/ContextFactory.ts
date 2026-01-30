@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { TrustLevel } from '../BaseCtx';
 import { CapabilityBag } from '../CapabilityBag';
 import { ExternalCtx } from '../ExternalCtx';
@@ -9,6 +8,7 @@ import { promoteExternalToInternal } from './promoteExternalToInternal';
 import { promoteInternalToCommand } from './promoteInternalToCommand';
 import { promoteToSystem } from './promoteToSystem';
 import { UnitOfWork } from '../../ports/UnitOfWorkPort';
+import { RitaId } from '../../domain/RitaId';
 
 export { promoteExternalToInternal } from './promoteExternalToInternal';
 export { promoteInternalToCommand } from './promoteInternalToCommand';
@@ -20,7 +20,7 @@ export class ContextFactory {
      */
     static createExternal(traceId?: string): ExternalCtx {
         return {
-            traceId: traceId || uuidv4(),
+            traceId: traceId || RitaId.generate('trace'),
             trustLevel: TrustLevel.External,
             capabilities: new CapabilityBag()
         };

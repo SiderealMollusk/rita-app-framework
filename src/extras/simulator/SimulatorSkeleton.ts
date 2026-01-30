@@ -1,4 +1,4 @@
-import { SimulatedClock, SimulatedRandom, InMemoryEventBus, Logger } from '../../core';
+import { SimulatedClock, SimulatedRandom, InMemoryEventBus, Logger, IdGeneratorPort } from '../../core';
 import { Schema as z, SchemaType } from '../../core/validation/Schema';
 import * as util from 'util';
 
@@ -35,9 +35,11 @@ export interface SimulationWorld {
     clock: SimulatedClock;
     random: SimulatedRandom;
     eventBus: InMemoryEventBus;
+    idGen: IdGeneratorPort;
     adapters: Record<string, any>;
     dispatch(actor: string, intent: string, payload: any): Promise<any>;
     query(queryName: string, params: any): Promise<any>;
+    settle(): Promise<void>;
 }
 
 export class ScenarioRunner {
@@ -52,6 +54,7 @@ export class ScenarioRunner {
                     break;
                 case 'act':
                     await this.world.dispatch(step.actor, step.intent, step.payload);
+                    await this.world.settle();
                     break;
                 case 'assert':
                     const result = await this.world.query(step.query, step.params);

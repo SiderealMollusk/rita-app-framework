@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "sim:l1": "ts-node src/demos/sims/v2/L1_Atomic/run.ts"
   },
   "repository": {
     "type": "git",
