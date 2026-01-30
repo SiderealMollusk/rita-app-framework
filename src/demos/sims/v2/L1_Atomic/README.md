@@ -30,3 +30,7 @@
 - 100% Trace consistency across all logs.
 - `PolicyToken` must be used for all state changes.
 - Successful execution in the `ScenarioRunner`.
+
+## 5. Testing Strategy
+- **Unit Tests:** 100% coverage for Domain entities (`KitchenItem`, `KitchenTicket`), Policy (`KitchenPolicy`), and Use Cases (`PlaceOrder`, `StartCooking`, `CompleteItem`, `GetTicket`).
+- **Simulation:** Verified via `ScenarioRunner` and `LogVerifier` against golden files to ensure deterministic execution and correct side effects.

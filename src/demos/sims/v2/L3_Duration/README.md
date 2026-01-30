@@ -26,3 +26,7 @@
 ## 4. Acceptance Criteria
 - No use of `setTimeout` or `setInterval`.
 - Assert that item completion happens *exactly* at the predicted virtual time.
+
+## 5. Testing Strategy
+- **Unit Tests:** 100% coverage for `StartCookingL3` ensuring it correctly schedules the `CompleteItem` command using the clock.
+- **Simulation:** Verification of deterministic time-travel, ensuring that Steak (20 mins) and Burger (10 mins) completion logs appear at the exact virtual millisecond predicted.

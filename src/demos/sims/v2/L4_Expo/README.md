@@ -28,3 +28,7 @@
 ## 4. Acceptance Criteria
 - Policy must block the `CloseTicket` command if items are pending.
 - Logs must clearly show the `BusinessRuleViolationError` on the first attempt.
+
+## 5. Testing Strategy
+- **Unit Tests:** 100% coverage for `TicketClosingPolicy`, `CloseTicket`, `FinishItem`, and `GetTicketStatus`.
+- **Simulation:** Verification of complex state aggregation, ensuring the ticket cannot be closed until all items are ready, and checking for appropriate error handling.

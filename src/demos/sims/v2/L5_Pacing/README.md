@@ -29,3 +29,7 @@
 - Use of `BaseProcessManager` is mandatory.
 - The manager must have its own `traceId` context (or propagate the parent one appropriately).
 - No hard-coding between the Chef's actions and the automatic start of the next course.
+
+## 5. Testing Strategy
+- **Unit Tests:** 100% coverage for `KitchenWorkflowManager` (Saga) and `StartCourse` use case.
+- **Simulation:** Verification of the chain reaction, ensuring that finishing all Course 1 items (Wings, Calamari) automatically triggers Course 2 (Steak) to start cooking.

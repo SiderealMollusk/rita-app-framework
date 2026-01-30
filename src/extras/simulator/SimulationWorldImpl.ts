@@ -46,6 +46,8 @@ export class SimulationWorldImpl implements SimulationWorld {
     }
 
     public async settle(): Promise<void> {
-        await this.clock.runUntilIdle();
+        // Run any tasks scheduled for the current time (e.g. immediate/0-delay tasks)
+        // This ensures the system reaches a stable state at the current virtual moment
+        await this.clock.advance(0);
     }
 }

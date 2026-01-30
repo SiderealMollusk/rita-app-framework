@@ -46,4 +46,13 @@ export class ContextFactory {
     static promoteToSystem(ctx: InternalCtx): SystemCtx {
         return promoteToSystem(ctx);
     }
+
+    /**
+     * Creates a new system context from scratch.
+     */
+    static createSystem(): SystemCtx {
+        const external = this.createExternal();
+        const internal = this.promoteToInternal(external, 'System');
+        return this.promoteToSystem(internal);
+    }
 }

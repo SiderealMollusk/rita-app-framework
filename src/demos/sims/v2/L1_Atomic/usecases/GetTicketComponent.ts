@@ -17,7 +17,8 @@ export class GetTicketComponent extends BaseComponent<GetTicketInput, any> {
             status: ticket._data.status,
             items: ticket._data.items.map((i: any) => ({
                 name: i._data.name,
-                status: i._data.status
+                status: i._data.status,
+                course: i._data.course
             }))
         };
     }

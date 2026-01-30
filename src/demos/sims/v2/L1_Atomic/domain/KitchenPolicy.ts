@@ -4,6 +4,7 @@ import { KitchenItem } from './KitchenItem';
 
 export type KitchenAction =
     | { kind: 'START_COOKING' }
+    | { kind: 'START_COURSE', course: number }
     | { kind: 'COMPLETE_ITEM', itemName: string };
 
 export class KitchenPolicy extends DecisionPolicy<KitchenTicket, KitchenAction> {
@@ -12,7 +13,7 @@ export class KitchenPolicy extends DecisionPolicy<KitchenTicket, KitchenAction> 
 
         switch (action.kind) {
             case 'START_COOKING':
-                if (status !== 'RECEIVED') {
+                if (status !== 'RECEIVED' && status !== 'OPEN') {
                     throw new BusinessRuleViolationError(`Cannot start cooking from status: ${status}`);
                 }
 
@@ -26,6 +27,22 @@ export class KitchenPolicy extends DecisionPolicy<KitchenTicket, KitchenAction> 
                         items: startedItems
                     },
                     note: 'Transitioned ticket and items to COOKING'
+                }];
+
+            case 'START_COURSE':
+                const courseItems = items.map(item => {
+                    if (item._data.course === action.course && item._data.status === 'RECEIVED') {
+                        return item._evolve({ status: 'COOKING' }, `Started Course ${action.course}`, this.token);
+                    }
+                    return item;
+                });
+
+                return [{
+                    changes: {
+                        items: courseItems,
+                        status: 'COOKING'
+                    },
+                    note: `Started cooking course ${action.course}`
                 }];
 
             case 'COMPLETE_ITEM':
