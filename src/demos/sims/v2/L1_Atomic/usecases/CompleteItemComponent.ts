@@ -1,4 +1,4 @@
-import { BaseComponent, CommandCtx, NotFoundError, InternalCtx } from '../../../../../core';
+import { BaseComponent, CommandCtx, NotFoundError, InternalCtx, EventBusPort, RitaClock } from '../../../../../core';
 import { KitchenPolicy } from '../domain/KitchenPolicy';
 
 export interface CompleteItemInput {
@@ -7,7 +7,11 @@ export interface CompleteItemInput {
 }
 
 export class CompleteItemComponent extends BaseComponent<CompleteItemInput, void> {
-    constructor(private repo: any, private policy: KitchenPolicy) {
+    constructor(
+        private repo: any,
+        private policy: KitchenPolicy,
+        private eventBus?: EventBusPort
+    ) {
         super();
     }
 
@@ -20,5 +24,16 @@ export class CompleteItemComponent extends BaseComponent<CompleteItemInput, void
             itemName: input.itemName
         });
         await this.repo.save(ctx, evolvedTicket);
+
+        if (this.eventBus) {
+            await this.eventBus.publish(ctx, {
+                name: 'ItemCompleted',
+                timestamp: RitaClock.now(),
+                payload: {
+                    ticketId: input.ticketId,
+                    itemName: input.itemName
+                }
+            });
+        }
     }
 }

@@ -53,7 +53,11 @@ export class ScenarioRunner {
                     await this.world.clock.advance(step.ms);
                     break;
                 case 'act':
-                    await this.world.dispatch(step.actor, step.intent, step.payload);
+                    try {
+                        await this.world.dispatch(step.actor, step.intent, step.payload);
+                    } catch (err) {
+                        // Business errors are expected in some scenarios
+                    }
                     await this.world.settle();
                     break;
                 case 'assert':

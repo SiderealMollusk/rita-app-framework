@@ -1,0 +1,6 @@
+{"timestamp":"1970-01-01T00:00:00.000Z","level":"INFO","message":"[Sim: Act]","metadata":{"actor":"Waiter","intent":"PlaceOrder","payload":{"items":["Burger","Fries","Coke"]}}}
+{"timestamp":"1970-01-01T00:00:00.000Z","level":"INFO","message":"[Component: Start]","traceId":"trace-1","component":"PlaceOrderComponentL2","metadata":{}}
+{"timestamp":"1970-01-01T00:00:00.000Z","level":"INFO","message":"[Component: End]","traceId":"trace-1","component":"PlaceOrderComponentL2","metadata":{}}
+{"timestamp":"1970-01-01T00:00:00.000Z","level":"INFO","message":"[EventBus] Publishing event: TicketCreated","traceId":"trace-1","metadata":{"payload":{"ticketId":"ticket-1","items":["Burger","Fries","Coke"]}}}
+{"timestamp":"1970-01-01T00:00:00.000Z","level":"INFO","message":"[Component: Start]","traceId":"trace-1","component":"KitchenStationProjector","metadata":{}}
+{"timestamp":"1970-01-01T00:00:00.000Z","level":"INFO","message":"[Component: End]","traceId":"trace-1","component":"KitchenStationProjector","metadata":{}}

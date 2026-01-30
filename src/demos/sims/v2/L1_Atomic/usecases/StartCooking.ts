@@ -10,7 +10,7 @@ export class StartCooking extends CommandUseCase<StartCookingInput, void> {
         this.component = new StartCookingComponent(repo, policy);
     }
 
-    public async run(input: StartCookingInput): Promise<void> {
-        return this.executeCommand(this.component, input);
+    public async run(input: StartCookingInput, principal?: string): Promise<void> {
+        return this.executeCommand(this.component, input, principal);
     }
 }

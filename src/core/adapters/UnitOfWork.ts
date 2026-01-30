@@ -28,13 +28,17 @@ export class UnitOfWorkImpl implements UnitOfWork {
             await participant.commit();
         }
 
-        if (this.eventBus) {
-            for (const { ctx, event } of this.events) {
-                await this.eventBus.publish(ctx, event);
-            }
-        }
+        const toPublish = [...this.events];
         this.events = [];
         this.participants = [];
+
+        if (this.eventBus) {
+            for (const { ctx, event } of toPublish) {
+                // Remove UoW from context to force actual publication
+                const { uow, ...rest } = ctx as any;
+                await this.eventBus.publish(rest as any, event);
+            }
+        }
     }
 
     public async rollback(): Promise<void> {

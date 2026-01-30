@@ -28,3 +28,7 @@
 ## 4. Acceptance Criteria
 - Assert that the `Ticket` remains a single aggregate in the primary repository.
 - Assert that the `StationViews` are updated reactively via events.
+
+## 5. Testing Strategy
+- **Unit Tests:** 100% coverage for `StationItem` read model, `KitchenStationProjector`, `GetStationItems` query, and `PlaceOrderL2`.
+- **Simulation:** End-to-end verification of the fan-out logic, ensuring items are correctly projected to the Grill, Fryer, and Bar stations based on their names.

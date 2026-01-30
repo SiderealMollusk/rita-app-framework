@@ -9,7 +9,7 @@ export class PlaceOrder extends CommandUseCase<PlaceOrderInput, string> {
         this.component = new PlaceOrderComponent(repo, idGen);
     }
 
-    public async run(input: PlaceOrderInput): Promise<string> {
-        return this.executeCommand(this.component, input);
+    public async run(input: PlaceOrderInput, principal?: string): Promise<string> {
+        return this.executeCommand(this.component, input, principal);
     }
 }
