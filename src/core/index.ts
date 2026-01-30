@@ -16,6 +16,7 @@ export * from './domain/BaseEntity';
 export * from './domain/DecisionPolicy';
 export * from './domain/PolicyToken';
 export * from './domain/RitaClock';
+export * from './domain/RitaId';
 export * from './domain/SimulatedClock';
 export * from './domain/SimulatedRandom';
 
@@ -29,11 +30,14 @@ export * from './execution/BaseProcessManager';
 
 // Adapters & Ports
 export * from './ports/ClockPort';
+export * from './ports/IdGeneratorPort';
 export * from './ports/SecondaryPort';
 export * from './ports/UnitOfWorkPort';
 export * from './ports/EventBusPort';
 export * from './adapters/BaseSecondaryAdapter';
 export * from './adapters/BaseRepository';
+export * from './adapters/UuidIdGenerator';
+export * from './adapters/SimulatedIdGenerator';
 export * from './adapters/AdminRepository';
 export * from './adapters/UnitOfWork';
 export * from './adapters/BasePrimaryAdapter';

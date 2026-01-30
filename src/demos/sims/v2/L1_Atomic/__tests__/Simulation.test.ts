@@ -1,5 +1,7 @@
-import { HarnessFactory } from '../../../../extras/simulator/HarnessFactory';
-import { ScenarioRunner, Scenario } from '../../../../extras/simulator/SimulatorSkeleton';
+import { HarnessFactory } from '../../../../../extras/simulator/HarnessFactory';
+import { ScenarioRunner, Scenario } from '../../../../../extras/simulator/SimulatorSkeleton';
+import { LogVerifier } from '../../../../../extras/simulator/LogVerifier';
+import * as path from 'path';
 
 const scenario: Scenario = {
     name: "L1 Happy Path",
@@ -72,20 +74,22 @@ const scenario: Scenario = {
     ]
 };
 
-async function run() {
-    const world = HarnessFactory.createL1();
-    const runner = new ScenarioRunner(world);
+describe('L1 Atomic Simulation', () => {
+    it('should produce deterministic logs matching the golden file', async () => {
+        const world = HarnessFactory.createL1();
+        const runner = new ScenarioRunner(world);
 
-    // Silence console for clean JSONL output if desired,
-    // but here we want to see it.
+        const logs: string[] = [];
+        const originalLog = console.log;
+        console.log = (msg: string) => { logs.push(msg); };
 
-    try {
-        await runner.play(scenario);
-        // console.log("L1 Simulation completed successfully!");
-    } catch (err) {
-        console.error("L1 Simulation failed:", err);
-        process.exit(1);
-    }
-}
+        try {
+            await runner.play(scenario);
+        } finally {
+            console.log = originalLog;
+        }
 
-run();
+        const goldenFile = path.join(__dirname, 'L1_HappyPath.golden.jsonl');
+        LogVerifier.verify(logs, goldenFile);
+    });
+});

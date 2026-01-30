@@ -5,7 +5,9 @@ import {
     InMemoryEventBus,
     ContextFactory,
     RitaClock,
-    Logger
+    RitaId,
+    Logger,
+    IdGeneratorPort
 } from '../../core';
 
 export class SimulationWorldImpl implements SimulationWorld {
@@ -15,10 +17,12 @@ export class SimulationWorldImpl implements SimulationWorld {
     constructor(
         public clock: SimulatedClock,
         public random: SimulatedRandom,
-        public eventBus: InMemoryEventBus
+        public eventBus: InMemoryEventBus,
+        public idGen: IdGeneratorPort
     ) {
-        // Apply clock override
+        // Apply overrides
         RitaClock._setTestClock(this.clock);
+        RitaId._setTestIdGenerator(this.idGen);
     }
 
     public registerUseCase(name: string, useCase: any) {
@@ -39,5 +43,9 @@ export class SimulationWorldImpl implements SimulationWorld {
         if (!useCase) throw new Error(`Query not found: ${queryName}`);
 
         return await useCase.run(params);
+    }
+
+    public async settle(): Promise<void> {
+        await this.clock.runUntilIdle();
     }
 }
