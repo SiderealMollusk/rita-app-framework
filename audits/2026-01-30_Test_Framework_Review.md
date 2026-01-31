@@ -34,11 +34,27 @@ The framework's greatest strength is its deterministic simulation engine, but it
 
 **Risk Level: Medium-High**
 
-A "lazy" LLM dev is highly likely to:
-1.  **Revert to Base Classes:** Use `BaseUseCase` instead of `StrictUseCase` to avoid defining Zod schemas.
-2.  **Bypass Policies:** Import `PolicyToken` and use `@ts-ignore` or `as any` to call `_evolve` directly from a UseCase to "save time".
-3.  **Leak Infrastructure:** Import `fs` or `axios` directly into a `DomainPolicy` because there is no runtime or build-time check to stop them.
-4.  **Ignore UnitOfWork:** Use a repository directly without a UoW, leading to non-atomic state changes that still "pass" simple tests.
+The framework provides robust "locks," but it does not yet provide "walls." A "lazy" developer (or an LLM instructed to "just make it work") can easily bypass the Governed Execution model through several vectors:
+
+### A. The "God Mode" Bypass (Context Laundering)
+`ContextFactory.createSystem()` is a public static method. A developer frustrated by `UnauthorizedError` or `ForbiddenError` can simply call this method to manufacture a context with full administrative capabilities (`AdminCap`, `CommitCap`, `RawQueryCap`).
+*   **Abuse Scenario:** An LLM generates a UseCase that calls `createSystem()` internally to bypass principal-based authorization checks.
+
+### B. PolicyToken Leakage
+The `PolicyToken` is designed to be the "keys to the kingdom" for entity evolution. While it is minted within a `DecisionPolicy`, the framework does not prevent the policy from leaking this token.
+*   **Abuse Scenario:** A developer adds a public `getToken()` method to their policy or passes the `this.token` to a secondary adapter, allowing infrastructure code to directly evolve domain entities without going through the decision logic.
+
+### C. Schema Laundering
+`StrictUseCase` requires Zod schemas, but it cannot enforce their *quality*.
+*   **Abuse Scenario:** A developer uses `z.any()` or `z.record(z.any())` for both request and response schemas. This "passes" the framework's mechanical requirements while completely negating the safety and contract-guarantee benefits of the architecture.
+
+### D. Direct Port/Adapter Coupling
+The Hexagonal architecture relies on UseCases depending on `Ports`. However, since TypeScript doesn't enforce module boundaries by default, a developer can import a concrete adapter (e.g., `InMemoryRepository`) directly into a UseCase.
+*   **Abuse Scenario:** Skipping the registry/DI layer to "speed up development," resulting in a system where the business logic is tightly coupled to a specific (and perhaps non-transactional) implementation.
+
+### E. The "as any" slippery slope
+The test suite heavily uses `(PolicyToken as any)[MINT_SYMBOL]()` to test domain logic in isolation.
+*   **Abuse Scenario:** An LLM sees this pattern in the codebase and "learns" that this is the standard way to get a token when the `OperationScope` is "too difficult to set up," leading to a complete collapse of the attribution and authorization model in production code.
 
 ---
 
